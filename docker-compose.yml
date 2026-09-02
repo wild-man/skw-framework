@@ -1,0 +1,182 @@
+services:
+  # SERVICES
+  skw-postgres:
+    container_name: skw-postgres
+    image: "postgres:latest"
+    tty: true
+    stdin_open: true
+    environment:
+      - POSTGRES_USER=skw
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=skw
+    volumes:
+      - ./docker/pgdata:/var/lib/postgresql
+      - ./conf/postgresql.conf:/var/lib/postgresql/18/docker/postgresql.conf
+    ports:
+      - "5432:5432"
+    networks:
+      - main
+
+  skw-iggy:
+    security_opt:
+      - seccomp:unconfined
+    image: apache/iggy:latest
+    container_name: skw-iggy
+    restart: unless-stopped
+    environment:
+      - IGGY_ROOT_USERNAME=iggy
+      - IGGY_ROOT_PASSWORD=Secret123!
+      - IGGY_HTTP_ENABLED=true
+      - IGGY_HTTP_ADDRESS=0.0.0.0:80
+      - IGGY_TCP_ENABLED=true
+      - IGGY_TCP_ADDRESS=0.0.0.0:3000
+      - IGGY_QUIC_ENABLED=true
+      - IGGY_HEARTBEAT_ENABLED=true
+      - IGGY_HEARTBEAT_INTERVAL=5s
+    ports:
+      - "8080:80"
+      - "8081:3000"
+    networks:
+      - main
+    volumes:
+      - ./docker/iggy:/iggy/local_data
+
+  skw-iggy-web-ui:
+    image: apache/iggy-web-ui:latest
+    container_name: skw-iggy-web-ui
+    restart: unless-stopped
+    environment:
+      - PUBLIC_IGGY_API_URL=http://localhost:8080
+    ports:
+      - "3050:3050"
+    networks:
+      - main
+
+  skw-api-gate:
+    container_name: skw-api-gate
+    build:
+      context: .
+      dockerfile: ./gates/api/Dockerfile
+    networks:
+      - main
+    ports:
+      - "8443:443"
+    volumes:
+      - ./conf/skw-api-gate.cert.pem:/app/skw-api-gate.cert.pem:ro
+      - ./conf/skw-api-gate.key.pem:/app/skw-api-gate.key.pem:ro
+    depends_on:
+      - skw-iggy
+    restart: unless-stopped
+
+  skw-auth-service:
+    container_name: skw-auth-service
+    build:
+      context: .
+      dockerfile: ./services/auth/Dockerfile
+    networks:
+      - main
+    ports:
+      - "9001:80"
+    depends_on:
+      - skw-postgres
+      - skw-iggy
+    restart: unless-stopped
+    environment:
+      RUST_LOG: debug
+      RUST_BACKTRACE: full
+
+  skw-ping-stream-service:
+    container_name: skw-ping-stream-service
+    build:
+      context: .
+      dockerfile: ./services/ping/Dockerfile
+    networks:
+      - main
+    depends_on:
+      - skw-postgres
+      - skw-iggy
+    restart: unless-stopped
+    environment:
+      RUST_LOG: debug
+      RUST_BACKTRACE: full
+
+  skw-ping-stream-service-1:
+    container_name: skw-ping-stream-service-1
+    build:
+      context: .
+      dockerfile: ./services/ping/Dockerfile
+    networks:
+      - main
+    depends_on:
+      - skw-postgres
+      - skw-iggy
+    restart: unless-stopped
+    environment:
+      RUST_LOG: debug
+      RUST_BACKTRACE: full
+
+  # skw-shell:
+  #   image: nicolaka/netshoot:latest
+  #   container_name: skw-shell
+  #   tty: true
+  #   stdin_open: true
+  #   dns:
+  #     - 1.1.1.1
+  #     - 8.8.8.8
+  #   entrypoint:
+  #     - sh
+  #     - -c
+  #     - |
+  #       for i in 1 2 3 4 5; do
+  #         apk add --no-cache postgresql-client redis && break
+  #         echo "apk failed (attempt $$i), retrying in 5s..."
+  #         sleep 5
+  #       done
+  #       exec sleep infinity
+  #   networks:
+  #     - main
+
+  skw-redis:
+    image: redis:latest
+    container_name: skw-redis
+    tty: true
+    stdin_open: true
+    environment:
+      - REDIS_PASSWORD=password
+      - REDIS_USER=skw
+      - REDIS_USER_PASSWORD=password
+    ports:
+      - "6381:6379"
+    volumes:
+      - ./docker/redis:/data
+      - ./conf/redis.conf:/usr/local/etc/redis/redis.conf
+      - ./conf/redis.users.acl:/usr/local/etc/redis/users.acl
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+    command: redis-server /usr/local/etc/redis/redis.conf --aclfile /usr/local/etc/redis/users.acl
+    networks:
+      - main
+    restart: unless-stopped
+
+  #NETWORK
+networks:
+  main-static:
+    ipam:
+      driver: default
+      config:
+        - subnet: "172.16.238.0/24"
+        - subnet: "2001:3984:3989::/64"
+  main:
+    driver: bridge
+
+  # VOLUMES
+volumes:
+  # minio_data:
+  #   driver: local
+  pgdata:

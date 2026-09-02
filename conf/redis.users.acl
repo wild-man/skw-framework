@@ -1,0 +1,2 @@
+user default on nopass ~* +@all
+user skw on >password ~* +@all

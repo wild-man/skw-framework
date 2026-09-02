@@ -1,0 +1,7 @@
+target/
+docker/
+conf/
+.git/
+.idea/
+.vscode/
+*.log

@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "code-review-graph": {
+      "command": "/home/wildman/.local/share/pipx/venvs/code-review-graph/bin/python",
+      "args": [
+        "-m",
+        "code_review_graph",
+        "serve"
+      ],
+      "cwd": "/home/wildman/Sources/skw2",
+      "type": "stdio"
+    }
+  }
+}

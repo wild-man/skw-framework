@@ -1,0 +1,44 @@
+[workspace]
+resolver = "3"
+
+members = [
+    "libs/*",
+    "gates/*",
+    "services/*",
+]
+
+[workspace.package]
+version = "0.20.0"
+authors = ["Sergey Kutsenko <sergey.wild.man@gmail.com>"]
+edition = "2024"
+
+[workspace.dependencies]
+skw-lib-shared = { path = "libs/shared" }
+skw-lib-http-protos = { path = "libs/http-protos" }
+serde_json = "1.0.140"
+serde = "1.0.219"
+serde_derive = "1.0.219"
+chrono = { version = "0.4.41", features = ["serde"]}
+log = { version = "0.4", features = ["std", "serde"] }
+tokio = { version = "1.45.1", features = ["full"] }
+tokio-postgres = { version = "0.7.13", features = ["with-serde_json-1", "with-uuid-0_8", "with-chrono-0_4"] }
+env_logger = { version = "0.11.8" }
+iggy = { version = "0.10" }
+futures = { version = "0.3.31" }
+futures-util = { version = "0.3.34" }
+thiserror = { version =  "2.0.12" }
+anyhow = { version = "1.0.98" }
+sqlx = { version = "0.8.6",  features = [ "runtime-tokio", "tls-rustls-ring-native-roots", "postgres", "uuid", "chrono"] }
+axum = { version = "0.8" , features = ["macros", "json"]}
+ed25519-dalek = { version = "2", features = ["pem", "rand_core"] }
+base64 = { version = "0.22" }
+uuid = { version = "1", features = ["v7", "serde"] }
+rand = { version = "0.8" }
+ntex = { version = "3.12.3", features = ["tokio", "rustls"] }
+rustls = { version = "0.23" }
+rustls-pki-types = { version = "1.15" }
+rcgen = { version = "0.13" }
+reqwest = { version = "0.13", features = ["json"] }
+strum = { version = "0.28.0" }
+strum_macros = { version = "0.28.0" }
+bytes = { version = "1.12.1" }
