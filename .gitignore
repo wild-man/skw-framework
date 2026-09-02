@@ -1,5 +1,8 @@
 # Added by code-review-graph
 .code-review-graph/
 docker/*
+gates/*
+libs/*
+services/*
 .zed/
 target/
