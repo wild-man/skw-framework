@@ -52,6 +52,21 @@ services:
     networks:
       - main
 
+  skw-rabbitmq:
+    image: rabbitmq:4-management
+    container_name: skw-rabbitmq
+    restart: unless-stopped
+    environment:
+      - RABBITMQ_DEFAULT_USER=rabbitmq
+      - RABBITMQ_DEFAULT_PASS=Secret123!
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - main
+    volumes:
+      - ./docker/rabbitmq:/var/lib/rabbitmq
+
   skw-api-gate:
     container_name: skw-api-gate
     build:
