@@ -110,6 +110,7 @@ services:
     depends_on:
       - skw-postgres
       - skw-iggy
+      - skw-redis
     restart: unless-stopped
     environment:
       RUST_LOG: debug
@@ -125,6 +126,7 @@ services:
     depends_on:
       - skw-postgres
       - skw-iggy
+      - skw-redis
     restart: unless-stopped
     environment:
       RUST_LOG: debug
@@ -161,7 +163,7 @@ services:
       - REDIS_USER=skw
       - REDIS_USER_PASSWORD=password
     ports:
-      - "6381:6379"
+      - "6379:6379"
     volumes:
       - ./docker/redis:/data
       - ./conf/redis.conf:/usr/local/etc/redis/redis.conf
