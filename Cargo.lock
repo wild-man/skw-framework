@@ -5286,6 +5286,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "skw-lib-task-protos"
+version = "0.20.0"
+dependencies = [
+ "serde",
+ "serde_derive",
+]
+
+[[package]]
 name = "skw-ping-service"
 version = "0.20.0"
 dependencies = [
@@ -5300,6 +5308,7 @@ dependencies = [
  "serde_json",
  "skw-lib-http-protos",
  "skw-lib-shared",
+ "skw-lib-task-protos",
  "sqlx",
  "thiserror",
  "tokio",
@@ -5310,10 +5319,14 @@ dependencies = [
 name = "skw-test-service"
 version = "0.20.0"
 dependencies = [
+ "anyhow",
  "base64",
  "chrono",
  "ed25519-dalek",
+ "lapin",
  "reqwest",
+ "serde_json",
+ "skw-lib-task-protos",
  "tokio",
 ]
 

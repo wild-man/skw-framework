@@ -65,7 +65,7 @@ services:
     networks:
       - main
     volumes:
-      - ./docker/rabbitmq:/var/lib/rabbitmq
+      - ./conf/rabbitmq:/etc/rabbitmq
 
   skw-api-gate:
     container_name: skw-api-gate

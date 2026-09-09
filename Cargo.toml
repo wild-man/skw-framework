@@ -15,6 +15,7 @@ edition = "2024"
 [workspace.dependencies]
 skw-lib-shared = { path = "libs/shared" }
 skw-lib-http-protos = { path = "libs/http-protos" }
+skw-lib-task-protos = { path = "libs/task-protos" }
 serde_json = "1.0.140"
 serde = "1.0.219"
 serde_derive = "1.0.219"
