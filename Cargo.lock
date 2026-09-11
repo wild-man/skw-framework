@@ -6856,6 +6856,27 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3ad82d2a33cdc9674dc7465672f271e096168fcdbe0f799d9e6db8c5892679dc"
 
 [[package]]
+name = "ws"
+version = "0.20.0"
+dependencies = [
+ "anyhow",
+ "dashmap",
+ "ed25519-dalek",
+ "futures",
+ "iggy",
+ "mimalloc",
+ "ntex",
+ "rustls",
+ "rustls-pki-types",
+ "serde",
+ "serde_json",
+ "skw-lib-http-protos",
+ "skw-lib-shared",
+ "thiserror",
+ "tokio",
+]
+
+[[package]]
 name = "wyz"
 version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
