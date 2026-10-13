@@ -1,0 +1,200 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Gateway Request Handling Workflow",
+    "quality_profile": "showcase"
+  },
+  "lanes": [
+    {
+      "id": "ui",
+      "label": "Client"
+    },
+    {
+      "id": "gate",
+      "label": "API Gate"
+    },
+    {
+      "id": "security",
+      "label": "Auth & Signature"
+    },
+    {
+      "id": "backend",
+      "label": "Backend Service (Iggy)"
+    }
+  ],
+  "phases": [
+    {
+      "id": "intake",
+      "label": "Intake",
+      "fromCol": 0,
+      "toCol": 1
+    },
+    {
+      "id": "authn",
+      "label": "AuthN / AuthZ",
+      "fromCol": 2,
+      "toCol": 3,
+      "variant": "emphasis"
+    },
+    {
+      "id": "roundtrip",
+      "label": "Async round trip",
+      "fromCol": 4,
+      "toCol": 5,
+      "variant": "dashed"
+    }
+  ],
+  "mainPath": [
+    "request",
+    "route",
+    "fetch_key",
+    "verify_sig",
+    "publish",
+    "service_reply",
+    "response"
+  ],
+  "nodes": [
+    {
+      "id": "request",
+      "lane": "ui",
+      "col": 0,
+      "type": "external",
+      "label": "HTTP Request",
+      "sublabel": "API-KEY + PAYLOAD-SIGNATURE",
+      "width": 132
+    },
+    {
+      "id": "route",
+      "lane": "gate",
+      "col": 1,
+      "type": "backend",
+      "label": "Route & Parse Body",
+      "sublabel": "path segment to topic",
+      "width": 132
+    },
+    {
+      "id": "fetch_key",
+      "lane": "security",
+      "col": 2,
+      "type": "security",
+      "label": "GetKeyById",
+      "sublabel": "internal HTTP to auth service",
+      "width": 132
+    },
+    {
+      "id": "verify_sig",
+      "lane": "security",
+      "col": 3,
+      "type": "security",
+      "label": "Verify Signature",
+      "sublabel": "ed25519, checked locally",
+      "width": 132
+    },
+    {
+      "id": "rejected",
+      "lane": "security",
+      "col": 4,
+      "type": "security",
+      "label": "401/403 Rejected",
+      "sublabel": "invalid or disabled entity",
+      "width": 132
+    },
+    {
+      "id": "publish",
+      "lane": "backend",
+      "col": 4,
+      "type": "messagebus",
+      "label": "Publish + Subscribe",
+      "sublabel": "signed headers",
+      "width": 132
+    },
+    {
+      "id": "service_reply",
+      "lane": "backend",
+      "col": 5,
+      "type": "messagebus",
+      "label": "Service Replies",
+      "sublabel": "back topic, same signature",
+      "width": 132
+    },
+    {
+      "id": "response",
+      "lane": "ui",
+      "col": 5,
+      "type": "frontend",
+      "label": "HTTP Response",
+      "sublabel": "status + JSON body",
+      "width": 132
+    }
+  ],
+  "edges": [
+    {
+      "id": "request-route",
+      "from": "request",
+      "to": "route",
+      "variant": "default"
+    },
+    {
+      "id": "route-fetch",
+      "from": "route",
+      "to": "fetch_key",
+      "variant": "default"
+    },
+    {
+      "id": "fetch-verify",
+      "from": "fetch_key",
+      "to": "verify_sig",
+      "label": "public key + enabled",
+      "variant": "default"
+    },
+    {
+      "id": "verify-publish",
+      "from": "verify_sig",
+      "to": "publish",
+      "label": "valid",
+      "variant": "emphasis"
+    },
+    {
+      "id": "verify-rejected",
+      "from": "verify_sig",
+      "to": "rejected",
+      "label": "invalid",
+      "variant": "security",
+      "role": "error"
+    },
+    {
+      "id": "publish-reply",
+      "from": "publish",
+      "to": "service_reply",
+      "label": "consumer group",
+      "variant": "default"
+    },
+    {
+      "id": "reply-response",
+      "from": "service_reply",
+      "to": "response",
+      "label": "broadcast match, 30s timeout",
+      "variant": "emphasis",
+      "role": "return"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Auth Flow",
+      "items": [
+        "Signature verification lives in the gate, not in skw-auth-service",
+        "skw-auth-service only serves GetKeyById over /internal"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Correlation",
+      "items": [
+        "The signature header doubles as the correlation id",
+        "The gate waits up to 30s on the shared back topic broadcast"
+      ]
+    }
+  ]
+}

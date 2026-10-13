@@ -83,8 +83,8 @@ services:
       - skw-iggy
     restart: unless-stopped
 
-  skw-auth-service:
-    container_name: skw-auth-service
+  skw-auth-http-service:
+    container_name: skw-auth-http-service
     build:
       context: .
       dockerfile: ./services/auth/Dockerfile
@@ -92,6 +92,21 @@ services:
       - main
     ports:
       - "9001:80"
+    depends_on:
+      - skw-postgres
+      - skw-iggy
+    restart: unless-stopped
+    environment:
+      RUST_LOG: debug
+      RUST_BACKTRACE: full
+
+  skw-auth-stream-service:
+    container_name: skw-auth-stream-service
+    build:
+      context: .
+      dockerfile: ./services/auth/Dockerfile.stream
+    networks:
+      - main
     depends_on:
       - skw-postgres
       - skw-iggy

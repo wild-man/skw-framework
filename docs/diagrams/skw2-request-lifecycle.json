@@ -1,0 +1,200 @@
+{
+  "schema_version": 1,
+  "diagram_type": "lifecycle",
+  "meta": {
+    "title": "Gateway Request Lifecycle",
+    "quality_profile": "showcase",
+    "viewBox": [
+      1080,
+      660
+    ]
+  },
+  "lanes": [
+    {
+      "id": "main",
+      "label": "Request lifecycle"
+    },
+    {
+      "id": "waiting",
+      "label": "Async wait"
+    },
+    {
+      "id": "exceptions",
+      "label": "Error outcomes"
+    },
+    {
+      "id": "terminal",
+      "label": "Terminal exits"
+    }
+  ],
+  "states": [
+    {
+      "id": "received",
+      "type": "start",
+      "label": "Request Received",
+      "sublabel": "catch_all entrypoint",
+      "lane": "main",
+      "col": 0,
+      "step": "01"
+    },
+    {
+      "id": "parsing",
+      "type": "active",
+      "label": "Route & Parse",
+      "sublabel": "path segment to topic",
+      "lane": "main",
+      "col": 1,
+      "step": "02"
+    },
+    {
+      "id": "verifying",
+      "type": "decision",
+      "label": "Signature Check",
+      "sublabel": "GetKeyById + ed25519",
+      "lane": "main",
+      "col": 2,
+      "step": "03"
+    },
+    {
+      "id": "publishing",
+      "type": "active",
+      "label": "Published to Iggy",
+      "sublabel": "signed headers",
+      "lane": "main",
+      "col": 3,
+      "step": "04"
+    },
+    {
+      "id": "completed",
+      "type": "success",
+      "label": "Response Returned",
+      "sublabel": "mapped HTTP status",
+      "lane": "main",
+      "col": 4,
+      "step": "05"
+    },
+    {
+      "id": "awaiting_reply",
+      "type": "waiting",
+      "label": "Awaiting Reply",
+      "sublabel": "broadcast, 30s timeout",
+      "lane": "waiting",
+      "col": 1
+    },
+    {
+      "id": "sig_failed",
+      "type": "failure",
+      "label": "Signature Invalid",
+      "sublabel": "bad sig or disabled entity",
+      "lane": "exceptions",
+      "col": 0
+    },
+    {
+      "id": "rejected",
+      "type": "failure",
+      "label": "401/403 Rejected",
+      "lane": "terminal",
+      "col": 0
+    },
+    {
+      "id": "timed_out",
+      "type": "failure",
+      "label": "504 Timed Out",
+      "lane": "terminal",
+      "col": 1
+    },
+    {
+      "id": "service_error",
+      "type": "failure",
+      "label": "Service Error",
+      "sublabel": "response-code header",
+      "lane": "terminal",
+      "col": 2
+    }
+  ],
+  "transitions": [
+    {
+      "id": "received-parsing",
+      "from": "received",
+      "to": "parsing",
+      "variant": "default"
+    },
+    {
+      "id": "parsing-verifying",
+      "from": "parsing",
+      "to": "verifying",
+      "variant": "default"
+    },
+    {
+      "id": "verifying-publishing",
+      "from": "verifying",
+      "to": "publishing",
+      "label": "signature valid",
+      "variant": "emphasis",
+      "labelDy": -25
+    },
+    {
+      "id": "verifying-failed",
+      "from": "verifying",
+      "to": "sig_failed",
+      "label": "signature invalid",
+      "variant": "security",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "straight",
+      "labelDy": 24
+    },
+    {
+      "id": "failed-rejected",
+      "from": "sig_failed",
+      "to": "rejected",
+      "variant": "security",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "straight"
+    },
+    {
+      "id": "publishing-waiting",
+      "from": "publishing",
+      "to": "awaiting_reply",
+      "label": "publish + subscribe",
+      "variant": "default",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "straight",
+      "labelDy": 24
+    },
+    {
+      "id": "waiting-completed",
+      "from": "awaiting_reply",
+      "to": "completed",
+      "label": "reply ok (2xx)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "waiting-service-error",
+      "from": "awaiting_reply",
+      "to": "service_error",
+      "label": "reply has error code",
+      "variant": "security"
+    },
+    {
+      "id": "waiting-timeout",
+      "from": "awaiting_reply",
+      "to": "timed_out",
+      "label": "no reply in 30s",
+      "variant": "security",
+      "route": "bottom-channel"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Outcomes",
+      "items": [
+        "An invalid signature rejects before anything is published",
+        "A 30s silence times out without any service ever failing"
+      ]
+    }
+  ]
+}
