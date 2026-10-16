@@ -30,9 +30,10 @@ redis = { version = "1.7", features = ["tokio-comp", "connection-manager"] }
 futures = { version = "0.3.31" }
 futures-util = { version = "0.3.34" }
 thiserror = { version =  "2.0.12" }
-anyhow = { version = "1.0.98" }
 sqlx = { version = "0.8.6",  features = [ "runtime-tokio", "tls-rustls-ring-native-roots", "postgres", "uuid", "chrono"] }
 axum = { version = "0.8" , features = ["macros", "json"]}
+tower-http = { version = "0.6", features = ["fs", "set-header"] }
+axum-server = { version = "0.8", features = ["tls-rustls-no-provider"] }
 ed25519-dalek = { version = "2", features = ["pem", "rand_core"] }
 base64 = { version = "0.22" }
 uuid = { version = "1", features = ["v7", "serde"] }
