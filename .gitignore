@@ -3,3 +3,6 @@
 docker/*
 .zed/
 target/
+libs/*
+services/*
+gates/*
