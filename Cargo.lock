@@ -5454,6 +5454,7 @@ version = "0.20.0"
 dependencies = [
  "serde",
  "serde_derive",
+ "skw-lib-shared",
  "uuid 1.24.0",
 ]
 

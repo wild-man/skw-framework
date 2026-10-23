@@ -290,6 +290,12 @@
     align-self:flex-end; background:var(--accent-soft); color:var(--text);
     border-bottom-right-radius:4px;
   }
+  .msg-assistant{
+    align-self:flex-start; background:var(--surface-2); color:var(--text);
+    border-bottom-left-radius:4px;
+  }
+  .msg-pending{ color:var(--text-muted); font-style:italic; }
+  .msg-failed{ color:var(--accent); font-style:italic; }
 
   .chat-input-row{
     display:flex; gap:8px; padding:12px; border-top:1px solid var(--border);
@@ -554,10 +560,16 @@
 </div>
 
 <script type="module">
-import { ApiGate, ApiKey, GateError } from './skw-api.js';
+import { ApiGate, ApiKey, GateError, WsGate } from './skw-api.js';
 
 // api-gate on the page's host, so the page origin stays in the gate's CORS allowedOrigins
 var GATE_URL = 'https://' + location.hostname + ':8443';
+// ws gate on the same host; it has no `auth` topics, so CreateKey still goes through the api-gate
+var WS_GATE_HOST = location.hostname + ':9443';
+var WS_GATE_URL = 'wss://' + WS_GATE_HOST + '/ws/';
+// an Ask answer is produced by dialog-mq-service and read back with GetDialog polling
+var ANSWER_POLL_MS = 1000;
+var ANSWER_TIMEOUT_MS = 120000;
 
 (function(){
   var fab = document.getElementById('chatFab');
@@ -569,9 +581,10 @@ var GATE_URL = 'https://' + location.hostname + ':8443';
   var form = document.getElementById('chatForm');
   var input = document.getElementById('chatInput');
   var idleText = document.getElementById('chatIdleText');
+  var sendBtn = form.querySelector('.chat-send');
 
   var gate = new ApiGate(GATE_URL);
-  // { apiKey, dialogId } of the started session; kept in memory only, a reload starts over
+  // { apiKey, ws, dialogId } of the started session; kept in memory only, a reload starts over
   var session = null;
 
   function isOpen(){ return panel.classList.contains('open'); }
@@ -590,19 +603,51 @@ var GATE_URL = 'https://' + location.hostname + ':8443';
     fab.focus();
   }
 
-  // new entity key (auth CreateKey, open) + a dialog owned by it (dialog CreateDialog, signed)
+  // new entity key (auth CreateKey, open, api-gate), then a ws connection authorized with it
+  // and a dialog owned by it (dialog CreateDialog, signed, over that connection)
   async function createSession(){
     var created = await gate.open('auth', 'CreateKey', { StorePrivateKey: false });
     var apiKey = await ApiKey.import(created.CreateKey.Id, created.CreateKey.PrivateKey);
-    var dialog = await gate.signed('dialog', apiKey, 'CreateDialog', {});
-    return { apiKey: apiKey, dialogId: dialog.CreateDialog.Id };
+
+    var ws;
+    try {
+      ws = await WsGate.connect(WS_GATE_URL);
+    } catch(e){
+      throw new WsUnreachable(e);
+    }
+    try {
+      await ws.authorize(apiKey);
+      var dialog = await ws.signed('dialog', 'CreateDialog', {});
+      ws.onclose = onSessionLost;
+      return { apiKey: apiKey, ws: ws, dialogId: dialog.CreateDialog.Id };
+    } catch(e){
+      ws.close();
+      throw e;
+    }
   }
+
+  class WsUnreachable extends Error {}
 
   function startError(e){
     if(e instanceof GateError) return 'Could not start a session (' + e.status + '). Try again.';
     // fetch rejects with TypeError on network, TLS and CORS failures alike
     if(e instanceof TypeError) return 'Chat server is unreachable. If it runs with a self-signed certificate, open ' + GATE_URL + ' once and accept it.';
-    return 'Could not start a session: ' + e;
+    // a browser hides why a WebSocket failed; a not-yet-accepted self-signed cert is the usual cause
+    if(e instanceof WsUnreachable) return 'Chat connection failed. If it runs with a self-signed certificate, open https://' + WS_GATE_HOST + '/ws/ once and accept it.';
+    return 'Could not start a session: ' + e.message;
+  }
+
+  // the ws connection dropped after the session started: start over
+  function onSessionLost(e){
+    console.error('chat connection lost', e);
+    session = null;
+    messages.replaceChildren();
+    messages.hidden = true;
+    form.hidden = true;
+    idle.hidden = false;
+    idleText.textContent = 'Connection lost. Start a new session.';
+    startBtn.disabled = false;
+    startBtn.textContent = 'Start';
   }
 
   async function onStart(){
@@ -623,15 +668,74 @@ var GATE_URL = 'https://' + location.hostname + ':8443';
     idle.hidden = true;
     messages.hidden = false;
     form.hidden = false;
-    input.focus();
+    // also unlocks an input left busy by an Ask of a lost session
+    setBusy(false);
   }
 
-  function appendMessage(text){
+  function appendMessage(className, text){
     var msg = document.createElement('div');
-    msg.className = 'msg msg-user';
+    msg.className = 'msg ' + className;
     msg.textContent = text;
     messages.appendChild(msg);
-    messages.scrollTop = messages.scrollHeight;
+    scrollToEnd();
+    return msg;
+  }
+
+  function scrollToEnd(){
+    var body = messages.parentElement;
+    body.scrollTop = body.scrollHeight;
+  }
+
+  function sleep(ms){ return new Promise(function(resolve){ setTimeout(resolve, ms); }); }
+
+  // polls GetDialog for messages after the question until the answer is no longer Pending
+  async function waitAnswer(s, ids){
+    var deadline = Date.now() + ANSWER_TIMEOUT_MS;
+    while(Date.now() < deadline){
+      await sleep(ANSWER_POLL_MS);
+      if(session !== s) throw new Error('session ended');
+      var reply = await s.ws.signed('dialog', 'GetDialog', { Id: s.dialogId, AfterMessageId: ids.UserMessageId });
+      var answer = reply.GetDialog.Messages.find(function(m){ return m.Id === ids.AssistantMessageId; });
+      if(answer && answer.Status !== 'Pending') return answer;
+    }
+    throw new Error('no answer within ' + ANSWER_TIMEOUT_MS / 1000 + 's');
+  }
+
+  function askError(e){
+    if(e instanceof GateError && e.status === 422) return 'The previous answer is still being written.';
+    return 'Could not get an answer: ' + e.message;
+  }
+
+  // one question at a time: the dialog service keeps a single Pending answer per dialog
+  async function ask(text){
+    var s = session;
+    appendMessage('msg-user', text);
+    var bubble = appendMessage('msg-assistant msg-pending', 'Thinking…');
+    setBusy(true);
+    try {
+      var asked = await s.ws.signed('dialog', 'Ask', { DialogId: s.dialogId, Content: text });
+      var answer = await waitAnswer(s, asked.Ask);
+      if(answer.Status === 'Done'){
+        bubble.className = 'msg msg-assistant';
+        bubble.textContent = answer.Content;
+      } else {
+        bubble.className = 'msg msg-assistant msg-failed';
+        bubble.textContent = 'No answer (' + (answer.Error || 'failed') + ').';
+      }
+    } catch(e){
+      console.error('chat ask failed', e);
+      bubble.className = 'msg msg-assistant msg-failed';
+      bubble.textContent = askError(e);
+    } finally {
+      scrollToEnd();
+      if(session === s) setBusy(false);
+    }
+  }
+
+  function setBusy(busy){
+    input.disabled = busy;
+    sendBtn.disabled = busy;
+    if(!busy) input.focus();
   }
 
   fab.addEventListener('click', function(){ isOpen() ? closePanel() : openPanel(); });
@@ -641,10 +745,10 @@ var GATE_URL = 'https://' + location.hostname + ':8443';
   form.addEventListener('submit', function(e){
     e.preventDefault();
     var text = input.value.trim();
-    if(!text) return;
-    appendMessage(text);
+    if(!text || !session || input.disabled) return;
     input.value = '';
     input.style.height = 'auto';
+    ask(text);
   });
 
   input.addEventListener('keydown', function(e){

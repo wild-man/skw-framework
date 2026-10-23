@@ -1,0 +1,4 @@
+[     206ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://127.0.0.1:8000/favicon.ico:0
+[   38265ms] [ERROR] chat connection lost Error: ws connection closed (1006)
+    at WsGate.onClose (https://127.0.0.1:8000/skw-api.js:208:77)
+    at WebSocket.<anonymous> (https://127.0.0.1:8000/skw-api.js:116:50) @ https://127.0.0.1:8000/:641

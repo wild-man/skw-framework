@@ -1,0 +1,168 @@
+- generic [ref=f1e1]:
+  - generic [ref=f1e3]:
+    - generic [ref=f1e4]: AVAILABLE — REMOTE — BASED IN ARMENIA (UTC+4)
+    - generic [ref=f1e6]:
+      - generic [ref=f1e7]: UPTIME 20y
+      - generic [ref=f1e8]: LAST DEPLOY 2026-05
+  - generic [ref=f1e9]:
+    - generic [ref=f1e10]:
+      - paragraph [ref=f1e11]: // Candidate profile
+      - heading "Sergey Kutsenko" [level=1] [ref=f1e12]
+      - paragraph [ref=f1e13]: Senior Rust Backend Developer — async runtimes, gateways & real-time data pipelines
+      - paragraph [ref=f1e14]:
+        - text: I'm the engineer you call when a service has to stay up under load nobody budgeted for. Over two decades I've moved from PHP web shops to
+        - strong [ref=f1e15]: fintech, crypto exchanges, network security and Web3
+        - text: — always ending up owning the part of the system where latency and correctness both have to hold at once.
+      - generic [ref=f1e16]:
+        - generic [ref=f1e17]: sergey.wild.man@gmail.com
+        - generic [ref=f1e18]: +374 43 257293
+        - generic [ref=f1e19]: Telegram @gnu_wild_man
+        - generic [ref=f1e20]: Yerevan, Armenia
+        - link "GitHub · Rust repos" [ref=f1e21] [cursor=pointer]:
+          - /url: https://github.com/wild-man?tab=repositories&q=skw&language=rust
+      - generic [ref=f1e22]:
+        - generic [ref=f1e23]:
+          - generic [ref=f1e24]: 220K RPS
+          - generic [ref=f1e25]: sustained by a Rust gateway with a 16MB RAM footprint
+        - generic [ref=f1e26]:
+          - generic [ref=f1e27]: 1.2M/min
+          - generic [ref=f1e28]: records processed in a real-time AS-graph analytics pipeline
+        - generic [ref=f1e29]:
+          - generic [ref=f1e30]: 10–12
+          - generic [ref=f1e31]: engineers I led as CTO, owning delivery end to end
+    - generic [ref=f1e32]:
+      - heading "Why hire me" [level=2] [ref=f1e34]
+      - paragraph [ref=f1e36]: "I specialize in high-performance, low-latency Rust systems — async runtimes, gateways, and the data pipelines behind them. My PostgreSQL background is deep enough to own query optimization and schema design, not just call the ORM. I've shipped inside fintech, cryptocurrency exchanges, network security, and Web3, and I've done the CTO job too: I know what \"production\" costs beyond the code."
+      - paragraph [ref=f1e37]: Lately that also means building with AI-assisted tooling — Claude Code, Zed Agent, local models via Ollama — for review, testing, and the routine generation work that used to eat a day. I use it to move faster, not to skip understanding what ships.
+    - generic [ref=f1e38]:
+      - heading "What I build with" [level=2] [ref=f1e40]
+      - generic [ref=f1e42]:
+        - generic [ref=f1e43]:
+          - heading "Rust ecosystem" [level=3] [ref=f1e44]
+          - generic [ref=f1e45]:
+            - generic [ref=f1e46]: Tokio
+            - generic [ref=f1e47]: Axum
+            - generic [ref=f1e48]: Warp
+            - generic [ref=f1e49]: Ntex
+            - generic [ref=f1e50]: Serde
+            - generic [ref=f1e51]: Diesel
+            - generic [ref=f1e52]: tokio-postgres
+            - generic [ref=f1e53]: rdkafka
+            - generic [ref=f1e54]: Flume
+            - generic [ref=f1e55]: Iggy
+        - generic [ref=f1e56]:
+          - heading "Languages" [level=3] [ref=f1e57]
+          - generic [ref=f1e58]:
+            - generic [ref=f1e59]: Rust
+            - generic [ref=f1e60]: PHP 4–8
+            - generic [ref=f1e61]: JavaScript
+            - generic [ref=f1e62]: SQL
+            - generic [ref=f1e63]: PL/SQL
+        - generic [ref=f1e64]:
+          - heading "Databases" [level=3] [ref=f1e65]
+          - generic [ref=f1e66]:
+            - generic [ref=f1e67]: PostgreSQL
+            - generic [ref=f1e68]: Oracle
+            - generic [ref=f1e69]: MySQL
+        - generic [ref=f1e70]:
+          - heading "Infrastructure" [level=3] [ref=f1e71]
+          - generic [ref=f1e72]:
+            - generic [ref=f1e73]: Docker
+            - generic [ref=f1e74]: Kubernetes
+            - generic [ref=f1e75]: Argo
+            - generic [ref=f1e76]: Prometheus
+            - generic [ref=f1e77]: Grafana
+            - generic [ref=f1e78]: Arch Linux
+        - generic [ref=f1e79]:
+          - heading "AI-assisted development" [level=3] [ref=f1e80]
+          - generic [ref=f1e81]:
+            - generic [ref=f1e82]: Claude Code
+            - generic [ref=f1e83]: Zed Agent
+            - generic [ref=f1e84]: Ollama · Mistral
+            - generic [ref=f1e85]: Ollama · Qwen-Coder
+    - generic [ref=f1e86]:
+      - heading "Where I've shipped" [level=2] [ref=f1e88]
+      - generic [ref=f1e90]:
+        - generic [ref=f1e91]:
+          - generic [ref=f1e92]: 2025-06 → 2026-05
+          - heading "MagicAlchemy" [level=3] [ref=f1e93]
+          - generic [ref=f1e94]: Online Web3 game
+          - generic [ref=f1e95]: Rust Developer
+          - list [ref=f1e96]:
+            - listitem [ref=f1e97]: I designed backend modules — database schemas and REST API endpoints — for in-game events.
+            - listitem [ref=f1e98]: I refactored the legacy codebase for maintainability and code cohesion.
+            - listitem [ref=f1e99]: I integrated an AI-assisted workflow (Zed Agent) into code review, automated testing, and routine generation of ORM models, API routing stubs, and ETL pipelines.
+        - generic [ref=f1e100]:
+          - generic [ref=f1e101]: 2023-08 → 2025-05
+          - heading "Letknow Pay" [level=3] [ref=f1e102]
+          - generic [ref=f1e103]: Crypto payment gateway
+          - generic [ref=f1e104]: Rust / PHP Developer
+          - list [ref=f1e105]:
+            - listitem [ref=f1e106]: I built a high-performance Rust gateway in front of PHP microservices, sustaining 220K RPS in synthetic tests at a 16MB RAM footprint.
+            - listitem [ref=f1e107]: I wrote a custom PHP extension in Rust on a Tokio async runtime for Apache Pulsar message streaming.
+            - listitem [ref=f1e108]: I built PHP microservices integrating with blockchain nodes — Ethereum, Cardano, Ripple, and others.
+        - generic [ref=f1e109]:
+          - generic [ref=f1e110]: 2021-04 → 2023-06
+          - heading "Waves.exchange" [level=3] [ref=f1e111]
+          - generic [ref=f1e112]: Cryptocurrency exchange · wx.network
+          - generic [ref=f1e113]: Rust Developer
+          - list [ref=f1e114]:
+            - listitem [ref=f1e115]: I designed and built backend microservices from scratch in Rust — blockchain address balance changelogs, investment earnings aggregation, and trade volume analytics.
+            - listitem [ref=f1e116]: I contributed to the architecture of roughly 15 production microservices.
+        - generic [ref=f1e117]:
+          - generic [ref=f1e118]: 2015-01 → 2021-02
+          - heading "Qrator Labs" [level=3] [ref=f1e119]
+          - generic [ref=f1e120]: DDoS protection & network security — project Radar
+          - generic [ref=f1e121]: Lead Full-Stack Developer
+          - paragraph [ref=f1e122]: Radar analyzes relationships between Internet Autonomous Systems, traffic flows, and network security incidents.
+          - list [ref=f1e123]:
+            - listitem [ref=f1e124]: I designed and implemented real-time visualization of an AS relationship graph, processing 1.2M records per minute.
+            - listitem [ref=f1e125]: I built the network security incident data analysis system.
+            - listitem [ref=f1e126]: I designed the data pipelines behind AS-graph construction and incident tracking.
+        - generic [ref=f1e127]:
+          - generic [ref=f1e128]: 2013-12 → 2014-12
+          - heading "Orbios" [level=3] [ref=f1e129]
+          - generic [ref=f1e130]: Cloud storage platform
+          - generic [ref=f1e131]: CTO
+          - list [ref=f1e132]:
+            - listitem [ref=f1e133]: "I architected the core system: virtual filesystem, distributed file storage, and a video/audio conversion pipeline."
+            - listitem [ref=f1e134]: I led an engineering team of 10–12 developers, owning technical delivery and timelines.
+            - listitem [ref=f1e135]: I built the development environment and CI infrastructure from scratch.
+        - generic [ref=f1e136]:
+          - generic [ref=f1e137]: 2004 → 2013
+          - heading "Earlier career" [level=3] [ref=f1e138]
+          - generic [ref=f1e139]: Mail.ru, RBC.ru, molotok.ru, and other web projects
+          - generic [ref=f1e140]: Backend / Full-Stack Developer
+          - list [ref=f1e141]:
+            - listitem [ref=f1e142]: This is where I built my foundation in PHP, MySQL/PostgreSQL, and JavaScript — the base everything since has been built on.
+    - generic [ref=f1e143]:
+      - heading "Education" [level=2] [ref=f1e145]
+      - generic [ref=f1e147]:
+        - generic [ref=f1e148]:
+          - generic [ref=f1e149]: Moscow State Technical University of Civil Aviation
+          - generic [ref=f1e150]: Computer Systems, Systems and Networks
+        - generic [ref=f1e151]: "2000"
+    - generic [ref=f1e152]:
+      - heading "Let's talk about the system you need built." [level=2] [ref=f1e153]
+      - paragraph [ref=f1e154]: Remote-ready, based in Yerevan (UTC+4). I answer fastest on Telegram.
+      - generic [ref=f1e155]:
+        - generic [ref=f1e156]: sergey.wild.man@gmail.com
+        - generic [ref=f1e157]: +374 43 257293
+        - generic [ref=f1e158]: "@gnu_wild_man"
+        - link "GitHub · Rust repos" [ref=f1e159] [cursor=pointer]:
+          - /url: https://github.com/wild-man?tab=repositories&q=skw&language=rust
+    - contentinfo [ref=f1e160]: sergey kutsenko · senior rust backend developer · updated 2026
+  - button "Open chat" [expanded] [ref=f1e161] [cursor=pointer]
+  - dialog "Chat" [ref=f1e164]:
+    - generic [ref=f1e165]:
+      - generic [ref=f1e166]: // ask me anything
+      - button "Close chat" [ref=f1e167] [cursor=pointer]: ×
+    - generic [ref=f1e175]:
+      - generic [ref=f1e176]: first question
+      - generic [ref=f1e177]: "[mock llama3.2] you said: first question"
+      - generic [ref=f1e178]: second question
+      - generic [ref=f1e179]: "[mock llama3.2] you said: second question"
+    - generic [ref=f1e172]:
+      - textbox "Message" [active] [ref=f1e173]:
+        - /placeholder: Type a message…
+      - button "Send" [ref=f1e174] [cursor=pointer]
