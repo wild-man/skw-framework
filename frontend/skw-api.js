@@ -100,7 +100,10 @@ const WS_CLOSE_POLICY = 1008;
 
 /// ws-gate client, one connection (`wss://host:port/ws/`). Signed topics need a prior `authorize(apiKey)`,
 /// after which every frame's `Signature` is the ed25519 signature of its `Data`. Replies
-/// `{"Signature", "ErrorMsg", "ErrCode", "Payload"}` are matched to requests by `Signature`.
+/// `{"Signature", "Status", "ErrorMsg", "ErrCode", "Payload"}` are matched to requests by `Signature`.
+/// A request settles on its first reply: a provisional one (`Status` 201/202) resolves it, and the
+/// final reply that follows under the same `Signature` is ignored (logged as an unexpected frame).
+/// A signed frame with an outdated `Ts` (> 30s from the gate clock) is rejected with `ErrCode` 409.
 /// Server pings are answered by the browser itself, which keeps the connection alive.
 export class WsGate {
   constructor(socket) {

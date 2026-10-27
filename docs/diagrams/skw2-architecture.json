@@ -3,340 +3,319 @@
   "diagram_type": "architecture",
   "meta": {
     "title": "skw2 Service Architecture",
-    "output": "skw2-architecture-rendered.html",
     "quality_profile": "showcase",
     "viewBox": [
-      1340,
-      750
-    ]
+      1240,
+      800
+    ],
+    "output": "skw2-architecture.html"
   },
   "components": [
     {
       "id": "client",
-      "type": "external",
-      "label": "API Client",
-      "sublabel": "HTTPS or WSS",
+      "type": "frontend",
+      "label": "Client",
+      "sublabel": "frontend/ or any app",
       "pos": [
-        40,
-        300
+        20,
+        360
       ],
       "size": [
-        130,
-        60
+        140,
+        64
       ]
     },
     {
-      "id": "gate",
+      "id": "api_gate",
       "type": "backend",
       "label": "API Gate",
-      "sublabel": "ntex HTTPS",
+      "sublabel": "ntex HTTPS, per request",
       "tag": "gates/api",
       "pos": [
-        420,
-        40
+        220,
+        180
       ],
       "size": [
-        150,
-        60
+        140,
+        64
       ]
     },
     {
       "id": "ws_gate",
       "type": "backend",
       "label": "WS Gate",
-      "sublabel": "ntex WebSocket",
+      "sublabel": "ntex WSS, per connection",
       "tag": "gates/ws",
       "pos": [
-        420,
-        560
+        220,
+        540
       ],
       "size": [
-        150,
-        60
+        140,
+        64
       ]
     },
     {
-      "id": "back_topic",
+      "id": "iggy",
       "type": "messagebus",
-      "label": "Back Topic",
-      "sublabel": "gate-back-{VERSION}",
+      "label": "Iggy Stream",
+      "sublabel": "service topics + gate-back",
       "pos": [
         420,
-        300
+        360
       ],
       "size": [
         150,
-        60
-      ]
-    },
-    {
-      "id": "svc_topic",
-      "type": "messagebus",
-      "label": "Ping Topic",
-      "sublabel": "Iggy stream",
-      "pos": [
-        650,
-        300
-      ],
-      "size": [
-        150,
-        60
+        64
       ]
     },
     {
       "id": "ping",
       "type": "backend",
       "label": "Ping Service",
-      "sublabel": "stream + mq consumers",
+      "sublabel": "stream + mq workers",
       "tag": "services/ping",
       "pos": [
-        880,
-        300
+        630,
+        180
       ],
       "size": [
-        150,
-        60
+        140,
+        64
       ]
     },
     {
-      "id": "rabbitmq",
-      "type": "messagebus",
-      "label": "RabbitMQ",
-      "sublabel": "ping-task queue",
+      "id": "dialog",
+      "type": "backend",
+      "label": "Dialog Service",
+      "sublabel": "stream + mq workers",
+      "tag": "services/dialog",
       "pos": [
-        880,
-        100
+        630,
+        540
       ],
       "size": [
-        150,
-        60
+        140,
+        64
       ]
     },
     {
       "id": "redis",
       "type": "database",
       "label": "Redis",
-      "sublabel": "ping:count / mq:count",
+      "sublabel": "ping:count, mq:count",
       "pos": [
-        880,
-        500
+        830,
+        90
       ],
       "size": [
-        150,
-        60
+        140,
+        64
+      ]
+    },
+    {
+      "id": "rabbitmq",
+      "type": "messagebus",
+      "label": "RabbitMQ",
+      "sublabel": "ping-task, dialog-ask",
+      "pos": [
+        830,
+        360
+      ],
+      "size": [
+        140,
+        64
+      ]
+    },
+    {
+      "id": "llm",
+      "type": "external",
+      "label": "LLM",
+      "sublabel": "OpenAI-compatible (mock)",
+      "pos": [
+        830,
+        630
+      ],
+      "size": [
+        140,
+        64
       ]
     },
     {
       "id": "auth",
       "type": "security",
       "label": "Auth Service",
-      "sublabel": "axum /internal",
+      "sublabel": "GetKeyById, CreateKey",
       "tag": "services/auth",
       "pos": [
-        1130,
+        1030,
         300
       ],
       "size": [
         140,
-        60
+        64
       ]
     },
     {
-      "id": "auth_db",
+      "id": "postgres",
       "type": "database",
       "label": "Postgres",
-      "sublabel": "entities + roles",
+      "sublabel": "auth + dialog schemas",
       "pos": [
-        1130,
-        60
+        1030,
+        540
       ],
       "size": [
         140,
-        60
+        64
       ]
-    }
-  ],
-  "boundaries": [
-    {
-      "kind": "region",
-      "label": "Backend Services",
-      "wraps": [
-        "gate",
-        "ws_gate",
-        "back_topic",
-        "svc_topic",
-        "ping",
-        "rabbitmq",
-        "redis",
-        "auth",
-        "auth_db"
-      ],
-      "pad": 30
     }
   ],
   "connections": [
     {
-      "id": "client-to-gate",
+      "id": "client-api",
       "from": "client",
-      "to": "gate",
-      "label": "HTTPS + ed25519 signature",
-      "variant": "emphasis",
-      "fromSide": "right",
-      "toSide": "left"
+      "to": "api_gate",
+      "label": "HTTPS, signed",
+      "variant": "emphasis"
     },
     {
-      "id": "client-to-ws-gate",
+      "id": "client-ws",
       "from": "client",
       "to": "ws_gate",
-      "label": "WSS, auth once per connection",
-      "variant": "emphasis",
-      "fromSide": "right",
-      "toSide": "left"
+      "label": "WSS, Authorize once",
+      "variant": "emphasis"
     },
     {
-      "id": "gate-to-back",
-      "from": "gate",
-      "to": "back_topic",
-      "label": "consumer-{back_topic}",
-      "variant": "dashed",
+      "id": "api-iggy",
+      "from": "api_gate",
+      "to": "iggy",
+      "label": "request / reply"
+    },
+    {
+      "id": "ws-iggy",
+      "from": "ws_gate",
+      "to": "iggy",
+      "label": "request / reply"
+    },
+    {
+      "id": "iggy-ping",
+      "from": "iggy",
+      "to": "ping",
+      "label": "consumer group"
+    },
+    {
+      "id": "iggy-dialog",
+      "from": "iggy",
+      "to": "dialog",
+      "label": "consumer group"
+    },
+    {
+      "id": "ping-redis",
+      "from": "ping",
+      "to": "redis",
+      "label": "INCR"
+    },
+    {
+      "id": "ping-rabbit",
+      "from": "ping",
+      "to": "rabbitmq",
+      "label": "PingTask"
+    },
+    {
+      "id": "dialog-rabbit",
+      "from": "dialog",
+      "to": "rabbitmq",
+      "label": "DialogAskTask"
+    },
+    {
+      "id": "dialog-llm",
+      "from": "dialog",
+      "to": "llm",
+      "label": "chat/completions"
+    },
+    {
+      "id": "dialog-postgres",
+      "from": "dialog",
+      "to": "postgres",
+      "label": "dialogs + messages"
+    },
+    {
+      "id": "auth-postgres",
+      "from": "auth",
+      "to": "postgres",
+      "label": "entities + roles",
       "labelDy": 24
     },
     {
-      "id": "gate-to-topic",
-      "from": "gate",
-      "to": "svc_topic",
-      "label": "publish request"
-    },
-    {
-      "id": "gate-to-auth",
-      "from": "gate",
+      "id": "api-auth",
+      "from": "api_gate",
       "to": "auth",
-      "label": "GetKeyById (per request)",
+      "label": "GetKeyById, cached 60s",
       "variant": "security",
-      "fromSide": "right",
-      "toSide": "right",
-      "via": [
-        [
-          600,
-          70
-        ],
-        [
-          600,
-          20
-        ],
-        [
-          1285,
-          20
-        ],
-        [
-          1285,
-          330
-        ]
-      ],
-      "labelSegment": 2
-    },
-    {
-      "id": "ws-gate-to-back",
-      "from": "ws_gate",
-      "to": "back_topic",
-      "label": "consumer-ws-{back_topic}",
-      "variant": "dashed"
-    },
-    {
-      "id": "ws-gate-to-topic",
-      "from": "ws_gate",
-      "to": "svc_topic",
-      "label": "publish request"
-    },
-    {
-      "id": "ws-gate-to-auth",
-      "from": "ws_gate",
-      "to": "auth",
-      "label": "GetKeyById (per connection)",
-      "variant": "security",
-      "fromSide": "right",
-      "toSide": "right",
-      "via": [
-        [
-          600,
-          590
-        ],
-        [
-          600,
-          650
-        ],
-        [
-          1285,
-          650
-        ],
-        [
-          1285,
-          330
-        ]
-      ],
-      "labelSegment": 2
-    },
-    {
-      "id": "auth-to-db",
-      "from": "auth",
-      "to": "auth_db",
-      "label": "entities + roles",
       "fromSide": "top",
-      "toSide": "bottom"
-    },
-    {
-      "id": "topic-to-ping",
-      "from": "svc_topic",
-      "to": "ping",
-      "label": "consumer group",
-      "fromSide": "right",
-      "toSide": "left"
-    },
-    {
-      "id": "rabbitmq-to-ping",
-      "from": "rabbitmq",
-      "to": "ping",
-      "label": "ping-task queue",
-      "fromSide": "bottom",
       "toSide": "top",
-      "labelDy": 40
+      "via": [
+        [
+          290,
+          40
+        ],
+        [
+          1100,
+          40
+        ]
+      ]
     },
     {
-      "id": "ping-to-redis",
-      "from": "ping",
-      "to": "redis",
-      "label": "INCR count",
+      "id": "ws-auth",
+      "from": "ws_gate",
+      "to": "auth",
+      "label": "GetKeyById per connection",
+      "variant": "security",
       "fromSide": "bottom",
-      "toSide": "top",
-      "labelDy": 40
+      "toSide": "right",
+      "via": [
+        [
+          290,
+          760
+        ],
+        [
+          1210,
+          760
+        ],
+        [
+          1210,
+          332
+        ]
+      ]
     }
   ],
   "cards": [
     {
       "dot": "cyan",
-      "title": "Two Gates, One Backend",
+      "title": "Two Gates, One Bus",
       "items": [
-        "gates/api and gates/ws share the same Iggy stream, ping topic, and back topic",
-        "Each gate joins the back topic under its own consumer-group name so replies aren't split between them",
-        "ws_gate authenticates once per connection; api gate verifies a signature on every request"
-      ]
-    },
-    {
-      "dot": "emerald",
-      "title": "Auth Service",
-      "items": [
-        "Owns the entities/roles Postgres schema",
-        "Exposes only GetKeyById over internal HTTP",
-        "Called by both gates, never by services directly"
+        "Both gates publish to {service}-{topic_type}-{VERSION} and read replies from gate-back-{VERSION}",
+        "Each gate reads replies in its own consumer group: consumer-{service}-{topic}",
+        "Gates verify ed25519 signatures and refuse an outdated Ts with 409"
       ]
     },
     {
       "dot": "amber",
       "title": "Background Work",
       "items": [
-        "ping-stream-service also increments a Redis counter on every Ping call",
-        "ping-mq-service drains a RabbitMQ queue independently of the Iggy request path",
-        "gates/ws and ping-mq-service are not yet in docker-compose"
+        "PingCreated/PingAccepted reply 201/202 at once; ping-mq sends the final 200 on the back topic",
+        "Dialog Ask stores a Pending answer; dialog-mq calls the LLM and clients poll GetDialog",
+        "Workers run tasks concurrently up to the queue prefetch"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Auth Service",
+      "items": [
+        "Owns the entities/roles schema and issues keys (CreateKey)",
+        "Serves GetKeyById to the gates; services never call it",
+        "Does not verify signatures itself"
       ]
     }
   ]

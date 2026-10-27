@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "28341d3a-1393-4077-9224-9a3569bb8fe7",
+  "status": "current",
+  "command": "deliver",
+  "type": "workflow",
+  "input": "/home/wildman/Sources/skw2/docs/diagrams/skw2-request-workflow.json",
+  "output": "/home/wildman/Sources/skw2/docs/diagrams/skw2-request-workflow.html",
+  "specification": {
+    "sha256": "5180c94d154a2e414b69e010646d4b3648a7f4d28929d2f90331d1c6b19d9160",
+    "bytes": 4618
+  },
+  "artifact": {
+    "sha256": "f68608e228b751edf801f9a6dcd37e7ccf3135f4758742988c3b02a9617671f0",
+    "bytes": 823605
+  }
+}

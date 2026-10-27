@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "6ff1db67-48f8-4945-bb2e-9a20e2563f76",
+  "status": "current",
+  "command": "deliver",
+  "type": "lifecycle",
+  "input": "/home/wildman/Sources/skw2/docs/diagrams/skw2-request-lifecycle.json",
+  "output": "/home/wildman/Sources/skw2/docs/diagrams/skw2-request-lifecycle.html",
+  "specification": {
+    "sha256": "7d00ad0931c261e6f9131ca7e1054fb3883f85837bdda05da9b53b83dc04c879",
+    "bytes": 2882
+  },
+  "artifact": {
+    "sha256": "e45cf3fbff2d80bd3ff5dc530c51d5cabd078f4b6dd1fcf59d084e6ac5a80988",
+    "bytes": 817948
+  }
+}

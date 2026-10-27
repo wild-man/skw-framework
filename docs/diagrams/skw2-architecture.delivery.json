@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "7c1dd711-95e2-44d1-b4a1-0c8370cf3161",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "/home/wildman/Sources/skw2/docs/diagrams/skw2-architecture.json",
+  "output": "/home/wildman/Sources/skw2/docs/diagrams/skw2-architecture.html",
+  "specification": {
+    "sha256": "77cbdc5ed777c7569cb68c00df1f83c7ab9057065d427b1ffda8b11db261f8bb",
+    "bytes": 6151
+  },
+  "artifact": {
+    "sha256": "bab49803ac35e5c8212de5ad450f05f3bfb82df820e53062ad64dac0bca89cf2",
+    "bytes": 834109
+  }
+}

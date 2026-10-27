@@ -2,13 +2,14 @@
   "schema_version": 1,
   "diagram_type": "sequence",
   "meta": {
-    "title": "Ping Request Round Trip",
+    "title": "Signed Ping Round Trip (API Gate)",
     "quality_profile": "showcase",
     "column_fit": "spread",
     "viewBox": [
       1000,
       600
-    ]
+    ],
+    "output": "skw2-ping-sequence.html"
   },
   "participants": [
     {
@@ -21,7 +22,7 @@
       "id": "gate",
       "type": "backend",
       "label": "API Gate",
-      "sublabel": "ntex"
+      "sublabel": "verifies, correlates"
     },
     {
       "id": "auth",
@@ -33,24 +34,24 @@
       "id": "bus",
       "type": "messagebus",
       "label": "Iggy Bus",
-      "sublabel": "topics"
+      "sublabel": "ping-signed, gate-back"
     },
     {
       "id": "ping",
       "type": "backend",
       "label": "Ping Service",
-      "sublabel": "consumer"
+      "sublabel": "ping-stream-service"
     }
   ],
   "segments": [
     {
       "from": 165,
-      "to": 280,
+      "to": 292,
       "label": "Request + auth"
     },
     {
-      "from": 292,
-      "to": 460,
+      "from": 300,
+      "to": 468,
       "label": "Async round trip"
     }
   ],
@@ -60,7 +61,7 @@
       "from": "client",
       "to": "gate",
       "y": 190,
-      "label": "POST /ping (signed)",
+      "label": "POST /ping/signed",
       "variant": "emphasis"
     },
     {
@@ -68,7 +69,7 @@
       "from": "gate",
       "to": "auth",
       "y": 222,
-      "label": "GetKeyById(entity)",
+      "label": "GetKeyById (on cache miss)",
       "variant": "security"
     },
     {
@@ -78,21 +79,21 @@
       "y": 254,
       "label": "public_key + enabled",
       "variant": "return",
-      "note": "gate verifies the ed25519 signature locally"
+      "note": "cached 60s; gate checks ed25519 + Ts window"
     },
     {
       "id": "publish-req",
       "from": "gate",
       "to": "bus",
-      "y": 306,
-      "label": "publish request (ping topic)",
+      "y": 314,
+      "label": "publish request",
       "variant": "emphasis"
     },
     {
       "id": "deliver-req",
       "from": "bus",
       "to": "ping",
-      "y": 338,
+      "y": 346,
       "label": "deliver (consumer group)",
       "variant": "default"
     },
@@ -100,24 +101,24 @@
       "id": "publish-resp",
       "from": "ping",
       "to": "bus",
-      "y": 370,
-      "label": "publish response (back topic)",
+      "y": 378,
+      "label": "reply on back topic",
       "variant": "default"
     },
     {
       "id": "broadcast-resp",
       "from": "bus",
       "to": "gate",
-      "y": 402,
-      "label": "broadcast (signature match)",
+      "y": 410,
+      "label": "matched by signature",
       "variant": "return"
     },
     {
       "id": "http-resp",
       "from": "gate",
       "to": "client",
-      "y": 434,
-      "label": "200 JSON",
+      "y": 442,
+      "label": "200 Ping JSON",
       "variant": "return"
     }
   ],
@@ -125,7 +126,7 @@
     {
       "participant": "gate",
       "from": 222,
-      "to": 460,
+      "to": 468,
       "type": "backend"
     },
     {
@@ -136,8 +137,8 @@
     },
     {
       "participant": "ping",
-      "from": 338,
-      "to": 375,
+      "from": 346,
+      "to": 383,
       "type": "backend"
     }
   ],
@@ -146,16 +147,16 @@
       "dot": "emerald",
       "title": "Happy Path",
       "items": [
-        "Signature verification happens once, inside the gate",
-        "The signature header doubles as the Iggy correlation id"
+        "The gate verifies the signature and the Ts window itself; auth only serves the key",
+        "The request signature doubles as the Iggy correlation id"
       ]
     },
     {
       "dot": "rose",
       "title": "Correlation",
       "items": [
-        "The gate subscribes to the back topic before publishing",
-        "A missing reply after 30s times out the HTTP request"
+        "The gate subscribes to the back-topic broadcast before publishing",
+        "No reply within 30s answers 504; a lagging receiver keeps waiting"
       ]
     }
   ]

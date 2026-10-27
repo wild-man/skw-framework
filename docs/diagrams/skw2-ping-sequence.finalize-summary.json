@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "sequence",
+  "quality": "showcase",
+  "specification": {
+    "path": "/home/wildman/Sources/skw2/docs/diagrams/skw2-ping-sequence.json",
+    "sha256": "8d07ce62ce8714d590b5c6f17e91c6a1d8ea155ab6dce19e1cfb35e41dca50c9",
+    "bytes": 3328
+  },
+  "artifact": {
+    "path": "/home/wildman/Sources/skw2/docs/diagrams/skw2-ping-sequence.html",
+    "sha256": "6ddc24ef3772e0c00bd1712f8d9425ef3bbfed4b5458ff2acfa03b9d98483a6a",
+    "bytes": 813367
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "/home/wildman/Sources/skw2/docs/diagrams/skw2-ping-sequence.finalize.json",
+    "summaryReceipt": "/home/wildman/Sources/skw2/docs/diagrams/skw2-ping-sequence.finalize-summary.json",
+    "browserCheckReceipt": "/home/wildman/Sources/skw2/docs/diagrams/skw2-ping-sequence.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-10-27T14:30:00.610Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 1980,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  }
+}

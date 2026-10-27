@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "56c84487-79c5-4e10-aa73-d718f49979f4",
+  "status": "current",
+  "command": "deliver",
+  "type": "dataflow",
+  "input": "/home/wildman/Sources/skw2/docs/diagrams/skw2-config-dataflow.json",
+  "output": "/home/wildman/Sources/skw2/docs/diagrams/skw2-config-dataflow.html",
+  "specification": {
+    "sha256": "83af4ec1f67fc410e7f672cbd79030016698e858e4ac4b5a48755947fedc0403",
+    "bytes": 4702
+  },
+  "artifact": {
+    "sha256": "ff56aaec0089ddeae926911fbde8e556a98ddc9a85452483f21a7eaf09549faf",
+    "bytes": 817163
+  }
+}

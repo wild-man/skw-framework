@@ -4,37 +4,205 @@
   "meta": {
     "title": "Config & Env Override Data Flow",
     "quality_profile": "showcase",
-    "viewBox": [1080, 640]
+    "viewBox": [
+      1080,
+      640
+    ],
+    "output": "skw2-config-dataflow.html"
   },
   "stages": [
-    { "label": "Sources" },
-    { "label": "Load" },
-    { "label": "Override" },
-    { "label": "Distribute" },
-    { "label": "Consume" }
+    {
+      "label": "Sources"
+    },
+    {
+      "label": "Load"
+    },
+    {
+      "label": "Override"
+    },
+    {
+      "label": "Distribute"
+    },
+    {
+      "label": "Consume"
+    }
   ],
   "nodes": [
-    { "id": "dev_json", "type": "external", "label": "{ENV}.json", "sublabel": "./dev.json in CWD", "stage": 0, "row": 0 },
-    { "id": "env_vars", "type": "external", "label": "Env Vars", "sublabel": "IGGY_URL, POSTGRES_URL", "stage": 0, "row": 2, "width": 150 },
-    { "id": "config_load", "type": "backend", "label": "Config::load()", "sublabel": "ConfigNew to ConfigReady", "stage": 1, "row": 1 },
-    { "id": "override_step", "type": "backend", "label": "Apply Overrides", "sublabel": "override_values_from_env()", "stage": 2, "row": 1, "width": 190 },
-    { "id": "app_context", "type": "backend", "label": "AppContext (APP)", "sublabel": "LazyLock singleton", "stage": 3, "row": 1 },
-    { "id": "postgres_pools", "type": "database", "label": "PostgresPools", "sublabel": "master/slave .connect()", "stage": 4, "row": 0 },
-    { "id": "iggy_client", "type": "messagebus", "label": "Iggy Client", "sublabel": ".connect()", "stage": 4, "row": 1 },
-    { "id": "service_bins", "type": "backend", "label": "Service Binaries", "sublabel": "gate / auth / ping", "stage": 4, "row": 2 }
+    {
+      "id": "dev_json",
+      "type": "external",
+      "label": "{ENV}.json",
+      "sublabel": "or SKW_CONFIG_FILE",
+      "stage": 0,
+      "row": 0,
+      "width": 150
+    },
+    {
+      "id": "env_vars",
+      "type": "external",
+      "label": "Env Vars",
+      "sublabel": "IGGY_URL, RABBITMQ_URL",
+      "stage": 0,
+      "row": 2,
+      "width": 150
+    },
+    {
+      "id": "config_load",
+      "type": "backend",
+      "label": "Config::load()",
+      "sublabel": "ConfigNew to ConfigReady",
+      "stage": 1,
+      "row": 1,
+      "width": 150
+    },
+    {
+      "id": "override_step",
+      "type": "backend",
+      "label": "Apply Overrides",
+      "sublabel": "override_values_from_env()",
+      "stage": 2,
+      "row": 1,
+      "width": 190
+    },
+    {
+      "id": "app_context",
+      "type": "backend",
+      "label": "AppContext (APP)",
+      "sublabel": "LazyLock singleton",
+      "stage": 3,
+      "row": 1,
+      "width": 150
+    },
+    {
+      "id": "postgres_pools",
+      "type": "database",
+      "label": "PostgresPools",
+      "sublabel": "master/slave pools",
+      "stage": 4,
+      "row": 0,
+      "width": 150
+    },
+    {
+      "id": "iggy_client",
+      "type": "messagebus",
+      "label": "Broker Clients",
+      "sublabel": "Iggy, RabbitMQ, Redis",
+      "stage": 4,
+      "row": 1,
+      "width": 150
+    },
+    {
+      "id": "service_bins",
+      "type": "backend",
+      "label": "Service Binaries",
+      "sublabel": "gates + services",
+      "stage": 4,
+      "row": 2,
+      "width": 150
+    }
   ],
   "flows": [
-    { "id": "json-to-load", "from": "dev_json", "to": "config_load", "label": "JSON Pointer values", "classification": "config source", "variant": "default" },
-    { "id": "env-to-override", "from": "env_vars", "to": "override_step", "label": "type-preserving overwrite", "classification": "runtime override", "variant": "emphasis", "route": "bottom-channel", "channelX": 405 },
-    { "id": "load-to-override", "from": "config_load", "to": "override_step", "label": "Config<ConfigReady>", "classification": "typestate", "variant": "default", "route": "straight", "labelDy": -40 },
-    { "id": "override-to-context", "from": "override_step", "to": "app_context", "label": "final config", "classification": "typestate", "variant": "default", "labelDy": -40 },
-    { "id": "context-to-postgres", "from": "app_context", "to": "postgres_pools", "label": "connect (Postgres)", "classification": "lazy init", "variant": "default", "labelAt": [800, 200] },
-    { "id": "context-to-iggy", "from": "app_context", "to": "iggy_client", "label": "connect (Iggy)", "classification": "lazy init", "variant": "default", "labelAt": [800, 314] },
-    { "id": "context-to-bins", "from": "app_context", "to": "service_bins", "label": "expect_str / expect_u32", "classification": "fail-fast read", "variant": "dashed", "labelAt": [800, 340] }
+    {
+      "id": "json-to-load",
+      "from": "dev_json",
+      "to": "config_load",
+      "label": "JSON Pointer values",
+      "classification": "config source",
+      "variant": "default"
+    },
+    {
+      "id": "env-to-override",
+      "from": "env_vars",
+      "to": "override_step",
+      "label": "type-preserving overwrite",
+      "classification": "runtime override",
+      "variant": "emphasis",
+      "route": "bottom-channel",
+      "channelX": 405
+    },
+    {
+      "id": "load-to-override",
+      "from": "config_load",
+      "to": "override_step",
+      "label": "Config<ConfigReady>",
+      "classification": "typestate",
+      "variant": "default",
+      "route": "straight",
+      "labelDy": -40
+    },
+    {
+      "id": "override-to-context",
+      "from": "override_step",
+      "to": "app_context",
+      "label": "final config",
+      "classification": "typestate",
+      "variant": "default",
+      "labelDy": -40
+    },
+    {
+      "id": "context-to-postgres",
+      "from": "app_context",
+      "to": "postgres_pools",
+      "label": "connect()?",
+      "classification": "lazy init",
+      "variant": "default",
+      "labelAt": [
+        800,
+        200
+      ]
+    },
+    {
+      "id": "context-to-iggy",
+      "from": "app_context",
+      "to": "iggy_client",
+      "label": "connect()?",
+      "classification": "lazy init",
+      "variant": "default",
+      "labelAt": [
+        800,
+        314
+      ]
+    },
+    {
+      "id": "context-to-bins",
+      "from": "app_context",
+      "to": "service_bins",
+      "label": "expect_str / expect_u32",
+      "classification": "fail-fast read",
+      "variant": "dashed",
+      "labelAt": [
+        800,
+        340
+      ]
+    }
   ],
   "cards": [
-    { "dot": "cyan", "title": "Fail-Fast Config", "items": ["expect_str/expect_u32/expect_bool panic on a missing or wrong-typed key", ".get(path) is the only optional accessor", "Values are addressed by JSON Pointer, e.g. /iggy/url"] },
-    { "dot": "amber", "title": "The CWD Gotcha", "items": ["dev.json is read relative to the process's current working directory", "Binaries must be launched from their own crate directory", "Migrations resolve ./migrations the same way"] },
-    { "dot": "emerald", "title": "Env Overrides", "items": ["/envOverrides maps a JSON pointer to an env var name", "Docker Compose injects POSTGRES_MASTER_URL and IGGY_URL this way", "Overrides are type-preserving, not a plain string replace"] }
+    {
+      "dot": "cyan",
+      "title": "Fail-Fast Config",
+      "items": [
+        "expect_str/expect_u32/expect_bool panic on a missing or wrong-typed key",
+        "connect() and TopicConfig return errors, so main exits with the cause",
+        "Values are addressed by JSON Pointer, e.g. /iggy/url"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "The CWD Gotcha",
+      "items": [
+        "{ENV}.json is read from the process's current working directory",
+        "SKW_CONFIG_FILE points at another file; CWD still resolves ./migrations",
+        "So binaries are launched from their own crate directory"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Env Overrides",
+      "items": [
+        "/envOverrides maps a JSON pointer to an env var name",
+        "Docker Compose injects POSTGRES_MASTER_URL and IGGY_URL this way",
+        "Overrides are type-preserving, not a plain string replace"
+      ]
+    }
   ]
 }

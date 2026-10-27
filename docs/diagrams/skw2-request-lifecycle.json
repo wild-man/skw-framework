@@ -1,190 +1,119 @@
 {
-  "schema_version": 1,
+  "schema_version": 3,
   "diagram_type": "lifecycle",
   "meta": {
-    "title": "Gateway Request Lifecycle",
-    "quality_profile": "showcase",
-    "viewBox": [
-      1080,
-      660
-    ]
+    "title": "Signed Request Lifecycle",
+    "output": "skw2-request-lifecycle.html",
+    "quality_profile": "showcase"
   },
-  "lanes": [
-    {
-      "id": "main",
-      "label": "Request lifecycle"
-    },
-    {
-      "id": "waiting",
-      "label": "Async wait"
-    },
-    {
-      "id": "exceptions",
-      "label": "Error outcomes"
-    },
-    {
-      "id": "terminal",
-      "label": "Terminal exits"
-    }
+  "mainPath": [
+    "received",
+    "verifying",
+    "publishing",
+    "awaiting_reply",
+    "completed"
   ],
   "states": [
     {
       "id": "received",
       "type": "start",
-      "label": "Request Received",
-      "sublabel": "catch_all entrypoint",
-      "lane": "main",
-      "col": 0,
+      "label": "Received",
+      "sublabel": "routed by path",
       "step": "01"
-    },
-    {
-      "id": "parsing",
-      "type": "active",
-      "label": "Route & Parse",
-      "sublabel": "path segment to topic",
-      "lane": "main",
-      "col": 1,
-      "step": "02"
     },
     {
       "id": "verifying",
       "type": "decision",
-      "label": "Signature Check",
-      "sublabel": "GetKeyById + ed25519",
-      "lane": "main",
-      "col": 2,
-      "step": "03"
+      "label": "Auth Checks",
+      "sublabel": "ed25519 + Ts window",
+      "step": "02"
     },
     {
       "id": "publishing",
       "type": "active",
-      "label": "Published to Iggy",
-      "sublabel": "signed headers",
-      "lane": "main",
-      "col": 3,
-      "step": "04"
-    },
-    {
-      "id": "completed",
-      "type": "success",
-      "label": "Response Returned",
-      "sublabel": "mapped HTTP status",
-      "lane": "main",
-      "col": 4,
-      "step": "05"
+      "label": "Published",
+      "sublabel": "to Iggy, signed headers",
+      "step": "03"
     },
     {
       "id": "awaiting_reply",
       "type": "waiting",
       "label": "Awaiting Reply",
-      "sublabel": "broadcast, 30s timeout",
-      "lane": "waiting",
-      "col": 1
+      "sublabel": "back topic, 30s timeout",
+      "step": "04"
     },
     {
-      "id": "sig_failed",
-      "type": "failure",
-      "label": "Signature Invalid",
-      "sublabel": "bad sig or disabled entity",
-      "lane": "exceptions",
-      "col": 0
+      "id": "completed",
+      "type": "success",
+      "label": "Responded",
+      "sublabel": "200 or 201/202",
+      "step": "05"
     },
     {
-      "id": "rejected",
+      "id": "refused",
       "type": "failure",
-      "label": "401/403 Rejected",
-      "lane": "terminal",
-      "col": 0
+      "label": "Refused",
+      "sublabel": "403 bad sig, 409 old Ts"
     },
     {
       "id": "timed_out",
       "type": "failure",
       "label": "504 Timed Out",
-      "lane": "terminal",
-      "col": 1
+      "sublabel": "no reply in 30s"
     },
     {
       "id": "service_error",
       "type": "failure",
       "label": "Service Error",
-      "sublabel": "response-code header",
-      "lane": "terminal",
-      "col": 2
+      "sublabel": "err-response-code"
     }
   ],
   "transitions": [
     {
-      "id": "received-parsing",
+      "id": "received-verifying",
       "from": "received",
-      "to": "parsing",
-      "variant": "default"
-    },
-    {
-      "id": "parsing-verifying",
-      "from": "parsing",
-      "to": "verifying",
-      "variant": "default"
+      "to": "verifying"
     },
     {
       "id": "verifying-publishing",
       "from": "verifying",
       "to": "publishing",
-      "label": "signature valid",
-      "variant": "emphasis",
-      "labelDy": -25
+      "label": "checks pass",
+      "variant": "emphasis"
     },
     {
-      "id": "verifying-failed",
+      "id": "verifying-refused",
       "from": "verifying",
-      "to": "sig_failed",
-      "label": "signature invalid",
-      "variant": "security",
-      "fromSide": "bottom",
-      "toSide": "top",
-      "route": "straight",
-      "labelDy": 24
-    },
-    {
-      "id": "failed-rejected",
-      "from": "sig_failed",
-      "to": "rejected",
-      "variant": "security",
-      "fromSide": "bottom",
-      "toSide": "top",
-      "route": "straight"
+      "to": "refused",
+      "label": "check fails",
+      "variant": "security"
     },
     {
       "id": "publishing-waiting",
       "from": "publishing",
       "to": "awaiting_reply",
-      "label": "publish + subscribe",
-      "variant": "default",
-      "fromSide": "bottom",
-      "toSide": "top",
-      "route": "straight",
-      "labelDy": 24
+      "label": "subscribed"
     },
     {
       "id": "waiting-completed",
       "from": "awaiting_reply",
       "to": "completed",
-      "label": "reply ok (2xx)",
+      "label": "reply ok",
       "variant": "emphasis"
-    },
-    {
-      "id": "waiting-service-error",
-      "from": "awaiting_reply",
-      "to": "service_error",
-      "label": "reply has error code",
-      "variant": "security"
     },
     {
       "id": "waiting-timeout",
       "from": "awaiting_reply",
       "to": "timed_out",
-      "label": "no reply in 30s",
-      "variant": "security",
-      "route": "bottom-channel"
+      "label": "no reply",
+      "variant": "security"
+    },
+    {
+      "id": "waiting-service-error",
+      "from": "awaiting_reply",
+      "to": "service_error",
+      "label": "reply has error",
+      "variant": "security"
     }
   ],
   "cards": [
@@ -192,8 +121,9 @@
       "dot": "rose",
       "title": "Outcomes",
       "items": [
-        "An invalid signature rejects before anything is published",
-        "A 30s silence times out without any service ever failing"
+        "A bad signature (403) or an outdated Ts (409) is refused before anything is published",
+        "No reply within 30s answers 504 even if no service failed",
+        "Over ws a 201/202 keeps the request pending until its final reply"
       ]
     }
   ]

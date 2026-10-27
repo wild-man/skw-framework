@@ -2,8 +2,9 @@
   "schema_version": 2,
   "diagram_type": "workflow",
   "meta": {
-    "title": "Gateway Request Handling Workflow",
-    "quality_profile": "showcase"
+    "title": "Signed Request Handling Workflow",
+    "quality_profile": "showcase",
+    "output": "skw2-request-workflow.html"
   },
   "lanes": [
     {
@@ -12,11 +13,11 @@
     },
     {
       "id": "gate",
-      "label": "API Gate"
+      "label": "Gate"
     },
     {
       "id": "security",
-      "label": "Auth & Signature"
+      "label": "Auth & Replay Checks"
     },
     {
       "id": "backend",
@@ -32,7 +33,7 @@
     },
     {
       "id": "authn",
-      "label": "AuthN / AuthZ",
+      "label": "AuthN + replay window",
       "fromCol": 2,
       "toCol": 3,
       "variant": "emphasis"
@@ -48,8 +49,8 @@
   "mainPath": [
     "request",
     "route",
-    "fetch_key",
     "verify_sig",
+    "check_ts",
     "publish",
     "service_reply",
     "response"
@@ -60,63 +61,72 @@
       "lane": "ui",
       "col": 0,
       "type": "external",
-      "label": "HTTP Request",
+      "label": "Signed Request",
       "sublabel": "API-KEY + PAYLOAD-SIGNATURE",
-      "width": 132
+      "width": 156
     },
     {
       "id": "route",
       "lane": "gate",
       "col": 1,
       "type": "backend",
-      "label": "Route & Parse Body",
-      "sublabel": "path segment to topic",
-      "width": 132
-    },
-    {
-      "id": "fetch_key",
-      "lane": "security",
-      "col": 2,
-      "type": "security",
-      "label": "GetKeyById",
-      "sublabel": "internal HTTP to auth service",
-      "width": 132
+      "label": "Route & Parse",
+      "sublabel": "first two path segments",
+      "width": 156
     },
     {
       "id": "verify_sig",
       "lane": "security",
-      "col": 3,
+      "col": 2,
       "type": "security",
       "label": "Verify Signature",
-      "sublabel": "ed25519, checked locally",
-      "width": 132
+      "sublabel": "GetKeyById (60s cache) + ed25519",
+      "width": 156
     },
     {
       "id": "rejected",
-      "lane": "security",
-      "col": 4,
+      "lane": "gate",
+      "col": 2,
       "type": "security",
-      "label": "401/403 Rejected",
-      "sublabel": "invalid or disabled entity",
-      "width": 132
+      "label": "403 Forbidden",
+      "sublabel": "bad signature or key",
+      "width": 156
+    },
+    {
+      "id": "check_ts",
+      "lane": "security",
+      "col": 3,
+      "type": "security",
+      "label": "Check Ts Window",
+      "sublabel": "within 30s of gate clock",
+      "width": 156
+    },
+    {
+      "id": "outdated",
+      "lane": "gate",
+      "col": 3,
+      "type": "security",
+      "label": "409 Conflict",
+      "sublabel": "outdated or future Ts",
+      "width": 156
     },
     {
       "id": "publish",
       "lane": "backend",
       "col": 4,
       "type": "messagebus",
-      "label": "Publish + Subscribe",
-      "sublabel": "signed headers",
-      "width": 132
+      "label": "Publish to Topic",
+      "sublabel": "signature + api-key headers",
+      "width": 156
     },
     {
       "id": "service_reply",
       "lane": "backend",
       "col": 5,
       "type": "messagebus",
-      "label": "Service Replies",
+      "label": "Service Reply",
       "sublabel": "back topic, same signature",
-      "width": 132
+      "width": 156
     },
     {
       "id": "response",
@@ -124,8 +134,8 @@
       "col": 5,
       "type": "frontend",
       "label": "HTTP Response",
-      "sublabel": "status + JSON body",
-      "width": 132
+      "sublabel": "200, 201/202 or error",
+      "width": 156
     }
   ],
   "edges": [
@@ -136,24 +146,10 @@
       "variant": "default"
     },
     {
-      "id": "route-fetch",
+      "id": "route-verify",
       "from": "route",
-      "to": "fetch_key",
-      "variant": "default"
-    },
-    {
-      "id": "fetch-verify",
-      "from": "fetch_key",
       "to": "verify_sig",
-      "label": "public key + enabled",
       "variant": "default"
-    },
-    {
-      "id": "verify-publish",
-      "from": "verify_sig",
-      "to": "publish",
-      "label": "valid",
-      "variant": "emphasis"
     },
     {
       "id": "verify-rejected",
@@ -162,6 +158,28 @@
       "label": "invalid",
       "variant": "security",
       "role": "error"
+    },
+    {
+      "id": "verify-ts",
+      "from": "verify_sig",
+      "to": "check_ts",
+      "label": "valid",
+      "variant": "emphasis"
+    },
+    {
+      "id": "ts-outdated",
+      "from": "check_ts",
+      "to": "outdated",
+      "label": "outside window",
+      "variant": "security",
+      "role": "error"
+    },
+    {
+      "id": "ts-publish",
+      "from": "check_ts",
+      "to": "publish",
+      "label": "fresh",
+      "variant": "emphasis"
     },
     {
       "id": "publish-reply",
@@ -174,7 +192,7 @@
       "id": "reply-response",
       "from": "service_reply",
       "to": "response",
-      "label": "broadcast match, 30s timeout",
+      "label": "signature match, 30s timeout",
       "variant": "emphasis",
       "role": "return"
     }
@@ -182,18 +200,18 @@
   "cards": [
     {
       "dot": "cyan",
-      "title": "Auth Flow",
+      "title": "Checks Live in the Gate",
       "items": [
-        "Signature verification lives in the gate, not in skw-auth-service",
-        "skw-auth-service only serves GetKeyById over /internal"
+        "The auth service only serves GetKeyById; both gates verify ed25519 locally",
+        "A valid signature over an old Ts is refused with 409 before anything is published"
       ]
     },
     {
       "dot": "emerald",
       "title": "Correlation",
       "items": [
-        "The signature header doubles as the correlation id",
-        "The gate waits up to 30s on the shared back topic broadcast"
+        "The request signature doubles as the correlation id on Iggy",
+        "No reply within 30s answers 504; a provisional reply ends an HTTP request with 201/202"
       ]
     }
   ]

@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "dataflow",
+  "quality": "showcase",
+  "specification": {
+    "path": "/home/wildman/Sources/skw2/docs/diagrams/skw2-config-dataflow.json",
+    "sha256": "83af4ec1f67fc410e7f672cbd79030016698e858e4ac4b5a48755947fedc0403",
+    "bytes": 4702
+  },
+  "artifact": {
+    "path": "/home/wildman/Sources/skw2/docs/diagrams/skw2-config-dataflow.html",
+    "sha256": "ff56aaec0089ddeae926911fbde8e556a98ddc9a85452483f21a7eaf09549faf",
+    "bytes": 817163
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "/home/wildman/Sources/skw2/docs/diagrams/skw2-config-dataflow.finalize.json",
+    "summaryReceipt": "/home/wildman/Sources/skw2/docs/diagrams/skw2-config-dataflow.finalize-summary.json",
+    "browserCheckReceipt": "/home/wildman/Sources/skw2/docs/diagrams/skw2-config-dataflow.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-10-27T14:30:00.610Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 2718,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  }
+}
