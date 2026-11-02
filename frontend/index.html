@@ -18,6 +18,13 @@
     --accent-soft:#F3DFD3;
     --data:#2E7D8C;
     --data-soft:#DCEBEC;
+    --code-keyword:#A2462A;
+    --code-string:#3B7A3E;
+    --code-number:#2E6E9C;
+    --code-comment:#7A8494;
+    --code-title:#6B4FA0;
+    --code-type:#2E7D8C;
+    --code-meta:#8A6A1F;
     --shadow: 0 1px 2px rgba(26,29,33,.06), 0 8px 24px -12px rgba(26,29,33,.18);
   }
   @media (prefers-color-scheme: dark){
@@ -33,6 +40,13 @@
       --accent-soft:#3A2418;
       --data:#5BB8C9;
       --data-soft:#16323A;
+      --code-keyword:#F0905F;
+      --code-string:#9BCB86;
+      --code-number:#79B8E8;
+      --code-comment:#7F8A99;
+      --code-title:#C4A7F0;
+      --code-type:#5BB8C9;
+      --code-meta:#D8B65E;
       --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
     }
   }
@@ -48,6 +62,13 @@
     --accent-soft:#3A2418;
     --data:#5BB8C9;
     --data-soft:#16323A;
+    --code-keyword:#F0905F;
+    --code-string:#9BCB86;
+    --code-number:#79B8E8;
+    --code-comment:#7F8A99;
+    --code-title:#C4A7F0;
+    --code-type:#5BB8C9;
+    --code-meta:#D8B65E;
     --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
   }
 
@@ -254,8 +275,9 @@
   .chat-fab:hover{ transform:translateY(-2px); }
 
   .chat-panel{
-    position:fixed; right:24px; bottom:88px; z-index:40;
-    width:min(360px, calc(100vw - 32px)); height:min(480px, calc(100vh - 140px));
+    /* full window width, minus the page gutter */
+    position:fixed; left:16px; right:16px; bottom:88px; z-index:40;
+    height:min(760px, calc(100vh - 140px));
     background:var(--surface); border:1px solid var(--border); border-radius:16px;
     box-shadow:var(--shadow);
     display:flex; flex-direction:column; overflow:hidden;
@@ -277,8 +299,19 @@
   .chat-close:hover{ color:var(--accent); }
 
   .chat-body{ flex:1; overflow-y:auto; padding:16px; }
-  .chat-idle{ height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:14px; }
+  .chat-idle{ min-height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:14px; }
   .chat-idle p{ color:var(--text-muted); font-size:14px; max-width:26ch; }
+  .chat-intro{ text-align:left; max-width:72ch; font-size:14px; color:var(--text); display:grid; gap:14px 40px; }
+  @media (min-width:900px){ .chat-intro{ grid-template-columns:1fr 1fr; max-width:140ch; } }
+  .help-diagrams-section{ grid-column:1 / -1; }
+  .help-diagrams .diagram-gallery{ grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:10px; margin:0; }
+  .help-diagrams .diagram-card{ font-size:12px; padding:6px; }
+  .chat-intro h3{ font-size:13px; font-family:"JetBrains Mono", monospace; color:var(--text-muted); margin:0 0 6px; }
+  .chat-intro p{ max-width:none; color:var(--text); font-size:14px; }
+  .chat-intro ul{ margin:6px 0 0; padding-left:18px; }
+  .chat-intro li{ margin-top:3px; }
+  .chat-intro code{ font-family:"JetBrains Mono", monospace; font-size:12.5px; background:var(--surface-2); padding:1px 5px; border-radius:5px; }
+  .chat-intro .chat-intro-try{ margin-top:10px; color:var(--text-muted); }
   .chat-idle .chip{ border:none; cursor:pointer; font-size:13px; }
 
   .chat-messages{ display:flex; flex-direction:column; gap:8px; }
@@ -294,6 +327,53 @@
     align-self:flex-start; background:var(--surface-2); color:var(--text);
     border-bottom-left-radius:4px;
   }
+  /* "?" answer: a copy of the intro, rendered as HTML, not pre-wrapped text */
+  .msg-help{ white-space:normal; max-width:100%; }
+  .msg-help .chat-intro{ max-width:none; }
+  .msg-help .chat-intro code{ background:var(--surface); }
+  /* answers with code: text stays pre-wrapped, code blocks scroll sideways */
+  .msg-rich{ max-width:100%; }
+  .msg pre{
+    margin:8px 0; padding:10px 12px; overflow-x:auto; white-space:pre;
+    background:var(--surface); border:1px solid var(--border); border-radius:8px;
+    font-family:"JetBrains Mono", ui-monospace, monospace; font-size:12.5px; line-height:1.5; tab-size:4;
+  }
+  .msg code.inline{ font-family:"JetBrains Mono", ui-monospace, monospace; font-size:12.5px; background:var(--surface); padding:1px 5px; border-radius:5px; }
+  .msg .code-lang{ display:block; margin:8px 0 -4px; font-family:"JetBrains Mono", monospace; font-size:11px; color:var(--text-muted); }
+  /* diagrams tool: preview gallery + full-size viewer */
+  .diagram-gallery{ display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:12px; margin:8px 0; white-space:normal; }
+  .diagram-card{
+    display:flex; flex-direction:column; gap:6px; padding:8px; cursor:pointer; text-align:left;
+    background:var(--surface); border:1px solid var(--border); border-radius:10px; color:var(--text);
+    font:inherit; font-size:13px; transition:border-color .15s ease, transform .15s ease;
+  }
+  .diagram-card:hover, .diagram-card:focus-visible{ border-color:var(--accent); transform:translateY(-1px); outline:none; }
+  .diagram-card img{ width:100%; aspect-ratio:16/10; object-fit:cover; object-position:top; border-radius:6px; background:var(--surface-2); }
+  .diagram-card .diagram-noimg{ aspect-ratio:16/10; display:flex; align-items:center; justify-content:center; border-radius:6px; background:var(--surface-2); color:var(--text-muted); font-size:12px; }
+  .diagram-viewer{
+    position:fixed; inset:0; z-index:60; display:flex; flex-direction:column;
+    background:color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter:blur(2px); padding:16px;
+  }
+  .diagram-viewer[hidden]{ display:none; }
+  .diagram-viewer-bar{
+    display:flex; align-items:center; gap:12px; padding:10px 14px;
+    background:var(--surface); border:1px solid var(--border); border-bottom:none; border-radius:12px 12px 0 0;
+    font-family:"JetBrains Mono", monospace; font-size:13px; color:var(--text);
+  }
+  .diagram-viewer-bar .title{ flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .diagram-viewer-bar a, .diagram-viewer-bar button{ color:var(--text-muted); background:none; border:none; font:inherit; cursor:pointer; text-decoration:none; }
+  .diagram-viewer-bar a:hover, .diagram-viewer-bar button:hover{ color:var(--accent); }
+  .diagram-viewer-bar .close{ font-size:20px; line-height:1; padding:0 4px; }
+  .diagram-viewer iframe{ flex:1; width:100%; border:1px solid var(--border); border-radius:0 0 12px 12px; background:var(--surface); }
+  .hljs-keyword, .hljs-selector-tag, .hljs-literal, .hljs-doctag{ color:var(--code-keyword); }
+  .hljs-string, .hljs-regexp, .hljs-addition, .hljs-char.escape_{ color:var(--code-string); }
+  .hljs-number, .hljs-symbol, .hljs-bullet{ color:var(--code-number); }
+  .hljs-comment, .hljs-quote, .hljs-deletion{ color:var(--code-comment); font-style:italic; }
+  .hljs-title, .hljs-section, .hljs-name, .hljs-selector-id, .hljs-selector-class{ color:var(--code-title); }
+  .hljs-type, .hljs-built_in, .hljs-attr, .hljs-attribute, .hljs-property{ color:var(--code-type); }
+  .hljs-meta, .hljs-variable, .hljs-template-variable, .hljs-params, .hljs-link{ color:var(--code-meta); }
+  .hljs-strong{ font-weight:700; }
+  .hljs-emphasis{ font-style:italic; }
   .msg-pending{ color:var(--text-muted); font-style:italic; }
   .msg-failed{ color:var(--accent); font-style:italic; }
 
@@ -318,7 +398,7 @@
 
 <div class="statusbar">
   <div class="statusbar-inner">
-    <span><span class="status-dot"></span>AVAILABLE — REMOTE — BASED IN ARMENIA (UTC+4)</span>
+    <span><span class="status-dot"></span>AVAILABLE · REMOTE · BASED IN ARMENIA (UTC+4)</span>
     <span class="right">
       <span>UPTIME 20y</span>
       <span>LAST DEPLOY 2026-05</span>
@@ -356,8 +436,8 @@
 
     <p class="eyebrow">// Candidate profile</p>
     <h1>Sergey Kutsenko</h1>
-    <p class="role">Senior Rust Backend Developer — async runtimes, gateways &amp; real-time data pipelines</p>
-    <p class="lede">I'm the engineer you call when a service has to stay up under load nobody budgeted for. Over two decades I've moved from PHP web shops to <strong>fintech, crypto exchanges, network security and Web3</strong> — always ending up owning the part of the system where latency and correctness both have to hold at once.</p>
+    <p class="role">Senior Rust Backend Developer: async runtimes, gateways &amp; real-time data pipelines</p>
+    <p class="lede">I'm the engineer you call when a service has to stay up under load nobody budgeted for. Over two decades I've moved from PHP web shops to <strong>fintech, crypto exchanges, network security and Web3</strong>, always ending up owning the part of the system where latency and correctness both have to hold at once.</p>
 
     <div class="contact-row">
       <span class="chip accent">sergey.wild.man@gmail.com</span>
@@ -385,8 +465,8 @@
 
   <section class="summary">
     <div class="section-head"><h2>Why hire me</h2><div class="rule"></div></div>
-    <p>I specialize in high-performance, low-latency Rust systems — async runtimes, gateways, and the data pipelines behind them. My PostgreSQL background is deep enough to own query optimization and schema design, not just call the ORM. I've shipped inside fintech, cryptocurrency exchanges, network security, and Web3, and I've done the CTO job too: I know what "production" costs beyond the code.</p>
-    <p>Lately that also means building with AI-assisted tooling — Claude Code, Zed Agent, local models via Ollama — for review, testing, and the routine generation work that used to eat a day. I use it to move faster, not to skip understanding what ships.</p>
+    <p>I specialize in high-performance, low-latency Rust systems: async runtimes, gateways, and the data pipelines behind them. My PostgreSQL background is deep enough to own query optimization and schema design, not just call the ORM. I've shipped inside fintech, cryptocurrency exchanges, network security, and Web3, and I've done the CTO job too: I know what "production" costs beyond the code.</p>
+    <p>Lately that also means building with AI-assisted tooling (Claude Code, Zed Agent, local models via Ollama) for review, testing, and the routine generation work that used to eat a day. I use it to move faster, not to skip understanding what ships.</p>
   </section>
 
   <section>
@@ -441,7 +521,7 @@
         <div class="org-context">Online Web3 game</div>
         <div class="role">Rust Developer</div>
         <ul>
-          <li>I designed backend modules — database schemas and REST API endpoints — for in-game events.</li>
+          <li>I designed backend modules (database schemas and REST API endpoints) for in-game events.</li>
           <li>I refactored the legacy codebase for maintainability and code cohesion.</li>
           <li>I integrated an AI-assisted workflow (Zed Agent) into code review, automated testing, and routine generation of ORM models, API routing stubs, and ETL pipelines.</li>
         </ul>
@@ -455,7 +535,7 @@
         <ul>
           <li>I built a high-performance Rust gateway in front of PHP microservices, sustaining 220K RPS in synthetic tests at a 16MB RAM footprint.</li>
           <li>I wrote a custom PHP extension in Rust on a Tokio async runtime for Apache Pulsar message streaming.</li>
-          <li>I built PHP microservices integrating with blockchain nodes — Ethereum, Cardano, Ripple, and others.</li>
+          <li>I built PHP microservices integrating with blockchain nodes: Ethereum, Cardano, Ripple, and others.</li>
         </ul>
       </div>
 
@@ -465,7 +545,7 @@
         <div class="org-context">Cryptocurrency exchange · wx.network</div>
         <div class="role">Rust Developer</div>
         <ul>
-          <li>I designed and built backend microservices from scratch in Rust — blockchain address balance changelogs, investment earnings aggregation, and trade volume analytics.</li>
+          <li>I designed and built backend microservices from scratch in Rust: blockchain address balance changelogs, investment earnings aggregation, and trade volume analytics.</li>
           <li>I contributed to the architecture of roughly 15 production microservices.</li>
         </ul>
       </div>
@@ -473,7 +553,7 @@
       <div class="entry">
         <div class="when">2015-01 → 2021-02</div>
         <h3>Qrator Labs</h3>
-        <div class="org-context">DDoS protection &amp; network security — project Radar</div>
+        <div class="org-context">DDoS protection &amp; network security, project Radar</div>
         <div class="role">Lead Full-Stack Developer</div>
         <p class="note">Radar analyzes relationships between Internet Autonomous Systems, traffic flows, and network security incidents.</p>
         <ul>
@@ -501,7 +581,7 @@
         <div class="org-context">Mail.ru, RBC.ru, molotok.ru, and other web projects</div>
         <div class="role">Backend / Full-Stack Developer</div>
         <ul>
-          <li>This is where I built my foundation in PHP, MySQL/PostgreSQL, and JavaScript — the base everything since has been built on.</li>
+          <li>This is where I built my foundation in PHP, MySQL/PostgreSQL, and JavaScript, the base everything since has been built on.</li>
         </ul>
       </div>
 
@@ -541,22 +621,59 @@
 
 <div class="chat-panel" id="chatPanel" role="dialog" aria-label="Chat" aria-hidden="true">
   <div class="chat-header">
-    <span class="mono">// ask me anything</span>
+    <span class="mono">ask about CV or skw microservice framework</span>
     <button class="chat-close" id="chatClose" type="button" aria-label="Close chat">×</button>
   </div>
 
   <div class="chat-body">
     <div class="chat-idle" id="chatIdle">
-      <p id="chatIdleText">Start a session to send a message.</p>
+      <div class="chat-intro">
+        <div>
+        <h3>What this chat is</h3>
+        <p>A <strong>local LLM</strong> (<code>qwen3:4b-instruct</code> on Ollama, running on my own GPU) answering through the
+          <strong>skw2</strong> backend this site runs on: a Rust system of an HTTPS gate and a WebSocket gate, the Iggy message bus,
+          RabbitMQ workers, Postgres and Redis. The dialog service stores each conversation, queues your question and has the
+          model answer it; the page shows the answer when it is ready.</p>
+        </div>
+        <div>
+        <h3>Tools the model can use</h3>
+        <p>Read-only access to the skw2 source code (this page included; secrets and configs are hidden).
+          The model picks them itself, or start a message with the command to run one directly, without the model:</p>
+        <ul>
+          <li><code>/list_files [dir] [depth]</code>: lists a directory of the project</li>
+          <li><code>/search_text &lt;text&gt; [dir=&lt;dir&gt;] [ext=&lt;ext&gt;]</code>: finds a text in the source files</li>
+          <li><code>/read_file &lt;path&gt; [start] [end]</code>: reads lines of a file</li>
+          <li><code>/show_file &lt;path&gt;</code>: shows a whole file exactly as it is</li>
+          <li><code>/diagrams</code>: shows the architecture diagrams as previews; click one to open it full size</li>
+          <li><code>/help</code>: lists these commands</li>
+        </ul>
+        <p class="chat-intro-try">Try: <em>"How does the ws gate verify signatures?"</em>, <em>"Show me services/dialog/src/lib.rs"</em>, <em>"Show me the diagrams"</em>.
+          It is a small 4B model, so answers can be incomplete. Send <code>?</code> any time to see this help again.</p>
+        </div>
+        <div class="help-diagrams-section">
+          <h3>Architecture diagrams</h3>
+          <div class="help-diagrams"></div>
+        </div>
+      </div>
+      <p id="chatIdleText">You can ask about SKW framework or about me.</p>
       <button class="chip accent" id="chatStart" type="button">Start</button>
     </div>
     <div class="chat-messages" id="chatMessages" hidden></div>
   </div>
 
   <form class="chat-input-row" id="chatForm" hidden>
-    <textarea id="chatInput" rows="1" placeholder="Type a message…" aria-label="Message"></textarea>
+    <textarea id="chatInput" rows="1" placeholder="Type a message or &quot;?&quot; for help" aria-label="Message"></textarea>
     <button type="submit" class="chat-send">Send</button>
   </form>
+</div>
+
+<div class="diagram-viewer" id="diagramViewer" role="dialog" aria-modal="true" aria-label="Diagram" hidden>
+  <div class="diagram-viewer-bar">
+    <span class="title" id="diagramTitle"></span>
+    <a id="diagramNewTab" href="#" target="_blank" rel="noopener">open in new tab ↗</a>
+    <button class="close" id="diagramClose" type="button" aria-label="Close diagram">×</button>
+  </div>
+  <iframe id="diagramFrame" title="Diagram"></iframe>
 </div>
 
 <script type="module">
@@ -567,9 +684,250 @@ var GATE_URL = 'https://' + location.hostname + ':8443';
 // ws gate on the same host; it has no `auth` topics, so CreateKey still goes through the api-gate
 var WS_GATE_HOST = location.hostname + ':9443';
 var WS_GATE_URL = 'wss://' + WS_GATE_HOST + '/ws/';
-// an Ask answer is produced by dialog-mq-service and read back with GetDialog polling
+// an Ask is accepted at once (202 with the message ids) and its final reply, the answer from
+// dialog-mq-service, arrives on the same ws request; GetDialog polling is only the fallback
+// when that reply is lost (gate timeout or restart)
 var ANSWER_POLL_MS = 1000;
 var ANSWER_TIMEOUT_MS = 120000;
+
+// highlight.js, vendored (frontend/vendor/highlight); loaded on the first answer with code.
+// If it fails to load, code blocks are shown unhighlighted.
+var HIGHLIGHT_LANGUAGES = ['rust', 'ini', 'json', 'javascript', 'sql', 'bash', 'yaml', 'markdown', 'xml', 'css', 'dockerfile'];
+var highlighter = null;
+
+function loadHighlighter(){
+  if(!highlighter){
+    highlighter = (async function(){
+      var hljs = (await import('./vendor/highlight/core.min.js')).default;
+      var grammars = await Promise.all(HIGHLIGHT_LANGUAGES.map(function(name){
+        return import('./vendor/highlight/languages/' + name + '.min.js');
+      }));
+      grammars.forEach(function(grammar, i){ hljs.registerLanguage(HIGHLIGHT_LANGUAGES[i], grammar.default); });
+      return hljs;
+    })().catch(function(e){
+      console.error('highlight.js failed to load', e);
+      return null;
+    });
+  }
+  return highlighter;
+}
+
+// Splits Markdown-ish text into text and fenced code parts: [{ text } | { code, lang }].
+// A fence is a line of 3+ backticks or tildes (optionally indented, with a language tag);
+// it closes at a line of at least as many of the same character. An unclosed fence runs to the end.
+function splitFences(text){
+  var parts = [];
+  var lines = text.split('\n');
+  var buffer = [];
+  var fence = null;
+
+  function flush(){
+    if(fence) parts.push({ code: buffer.join('\n'), lang: fence.lang });
+    else if(buffer.length) parts.push({ text: buffer.join('\n') });
+    buffer = [];
+  }
+
+  lines.forEach(function(line){
+    if(fence){
+      var close = line.match(/^\s*(`{3,}|~{3,})\s*$/);
+      if(close && close[1][0] === fence.char && close[1].length >= fence.length){
+        flush();
+        fence = null;
+        return;
+      }
+      buffer.push(line);
+      return;
+    }
+    var open = line.match(/^\s*(`{3,}|~{3,})\s*([\w+#.-]*)\s*$/);
+    if(open){
+      flush();
+      fence = { char: open[1][0], length: open[1].length, lang: open[2].toLowerCase() };
+      return;
+    }
+    buffer.push(line);
+  });
+  flush();
+
+  // drop the blank lines around code blocks: the <pre> margins space them already
+  return parts
+    .map(function(p){ return p.code === undefined ? { text: p.text.replace(/^\n+|\n+$/g, '') } : p; })
+    .filter(function(p){ return p.code !== undefined || p.text; });
+}
+
+// **bold** and `code` inside plain text, built as DOM nodes (never as HTML)
+function appendInline(parent, text){
+  var re = /\*\*([^*\n]+)\*\*|`([^`\n]+)`/g;
+  var last = 0;
+  var m;
+  while((m = re.exec(text)) !== null){
+    if(m.index > last) parent.appendChild(document.createTextNode(text.slice(last, m.index)));
+    var el = document.createElement(m[1] !== undefined ? 'strong' : 'code');
+    if(m[2] !== undefined) el.className = 'inline';
+    el.textContent = m[1] !== undefined ? m[1] : m[2];
+    parent.appendChild(el);
+    last = re.lastIndex;
+  }
+  if(last < text.length) parent.appendChild(document.createTextNode(text.slice(last)));
+}
+
+// diagram links come from the dialog service's `diagrams` tool; only files of diagrams/ are accepted
+var DIAGRAM_URL = /^diagrams\/[\w.-]+\.(html|png)$/;
+
+function isDarkTheme(){
+  var theme = document.documentElement.dataset.theme;
+  if(theme) return theme === 'dark';
+  return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+}
+
+// `[{title, url, preview?, previewDark?}]` → a grid of preview cards; null if the block is not valid
+function renderDiagramGallery(json){
+  var list;
+  try { list = JSON.parse(json); } catch(e){ return null; }
+  if(!Array.isArray(list)) return null;
+  var items = list.filter(function(d){
+    return d && typeof d.title === 'string' && typeof d.url === 'string' && DIAGRAM_URL.test(d.url);
+  });
+  if(!items.length) return null;
+
+  var dark = isDarkTheme();
+  var grid = document.createElement('div');
+  grid.className = 'diagram-gallery';
+  items.forEach(function(d){
+    var card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'diagram-card';
+    var src = dark && DIAGRAM_URL.test(d.previewDark || '') ? d.previewDark : d.preview;
+    if(typeof src === 'string' && DIAGRAM_URL.test(src)){
+      var img = document.createElement('img');
+      img.src = src;
+      img.alt = '';
+      img.loading = 'lazy';
+      card.appendChild(img);
+    } else {
+      var none = document.createElement('span');
+      none.className = 'diagram-noimg';
+      none.textContent = 'no preview';
+      card.appendChild(none);
+    }
+    var title = document.createElement('span');
+    title.textContent = d.title;
+    card.appendChild(title);
+    card.addEventListener('click', function(){ openDiagram(d.title, d.url); });
+    grid.appendChild(card);
+  });
+  return grid;
+}
+
+// the diagrams of frontend/diagrams for the help; keep in sync with that folder
+// (the `diagrams` tool of the dialog service lists them by itself)
+var HELP_DIAGRAMS = [
+  'skw2-architecture:skw2 Service Architecture',
+  'skw2-config-dataflow:Config & Env Override Data Flow',
+  'skw2-ping-sequence:Signed Ping Round Trip (API Gate)',
+  'skw2-request-lifecycle:Signed Request Lifecycle',
+  'skw2-request-workflow:Signed Request Handling Workflow',
+].map(function(entry){
+  var i = entry.indexOf(':');
+  var name = entry.slice(0, i);
+  return {
+    title: entry.slice(i + 1),
+    url: 'diagrams/' + name + '.html',
+    preview: 'diagrams/' + name + '.visual-check.1440x900.light.png',
+    previewDark: 'diagrams/' + name + '.visual-check.1440x900.dark.png',
+  };
+});
+
+// (re)builds the gallery of every `.help-diagrams` in `root`; a cloned help needs it too,
+// since cloneNode doesn't copy the cards' click handlers
+function fillHelpDiagrams(root){
+  root.querySelectorAll('.help-diagrams').forEach(function(slot){
+    slot.replaceChildren();
+    var gallery = renderDiagramGallery(JSON.stringify(HELP_DIAGRAMS));
+    if(gallery) slot.appendChild(gallery);
+  });
+}
+
+var diagramViewer = document.getElementById('diagramViewer');
+var diagramFrame = document.getElementById('diagramFrame');
+var diagramOpener = null;
+
+function openDiagram(title, url){
+  diagramOpener = document.activeElement;
+  document.getElementById('diagramTitle').textContent = title;
+  document.getElementById('diagramNewTab').href = url;
+  diagramFrame.src = url;
+  diagramViewer.hidden = false;
+  document.getElementById('diagramClose').focus();
+}
+
+function closeDiagram(){
+  diagramViewer.hidden = true;
+  diagramFrame.src = 'about:blank';
+  if(diagramOpener) diagramOpener.focus();
+}
+
+document.getElementById('diagramClose').addEventListener('click', closeDiagram);
+diagramViewer.addEventListener('click', function(e){ if(e.target === diagramViewer) closeDiagram(); });
+// capture phase: Escape closes the viewer before it reaches the chat panel's handler
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape' && !diagramViewer.hidden){
+    e.stopPropagation();
+    closeDiagram();
+  }
+}, true);
+
+// Renders an answer into `el`. Model output only ever becomes text nodes; the one
+// innerHTML is highlight.js output, which escapes the code it wraps in spans.
+function renderAnswer(el, text){
+  var parts = splitFences(text);
+  el.replaceChildren();
+  var codes = [];
+  parts.forEach(function(part){
+    if(part.code === undefined){
+      var span = document.createElement('span');
+      appendInline(span, part.text);
+      el.appendChild(span);
+      return;
+    }
+    if(part.lang === 'skw-diagrams'){
+      var gallery = renderDiagramGallery(part.code);
+      if(gallery){
+        el.appendChild(gallery);
+        el.classList.add('msg-rich');
+        return;
+      }
+    }
+    if(part.lang){
+      var label = document.createElement('span');
+      label.className = 'code-lang';
+      label.textContent = part.lang;
+      el.appendChild(label);
+    }
+    var pre = document.createElement('pre');
+    var code = document.createElement('code');
+    code.className = 'hljs';
+    code.textContent = part.code;
+    pre.appendChild(code);
+    el.appendChild(pre);
+    codes.push({ el: code, part: part });
+  });
+  if(!codes.length) return;
+
+  el.classList.add('msg-rich');
+  loadHighlighter().then(function(hljs){
+    if(!hljs) return;
+    codes.forEach(function(c){
+      try {
+        var result = hljs.getLanguage(c.part.lang)
+          ? hljs.highlight(c.part.code, { language: c.part.lang, ignoreIllegals: true })
+          : hljs.highlightAuto(c.part.code);
+        c.el.innerHTML = result.value;
+      } catch(e){
+        console.error('highlight failed', e);
+      }
+    });
+  });
+}
 
 (function(){
   var fab = document.getElementById('chatFab');
@@ -582,6 +940,48 @@ var ANSWER_TIMEOUT_MS = 120000;
   var input = document.getElementById('chatInput');
   var idleText = document.getElementById('chatIdleText');
   var sendBtn = form.querySelector('.chat-send');
+  var intro = document.querySelector('.chat-intro');
+  fillHelpDiagrams(intro);
+
+  // sent messages, oldest first, for ArrowUp/ArrowDown recall (shell-like); kept across reloads
+  var HISTORY_KEY = 'skw-chat-history';
+  var HISTORY_MAX = 100;
+  var history = loadHistory();
+  // position while browsing: history.length = the draft being typed
+  var historyPos = history.length;
+  var draft = '';
+
+  function loadHistory(){
+    try {
+      var stored = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+      return Array.isArray(stored) ? stored.filter(function(m){ return typeof m === 'string'; }) : [];
+    } catch(e){
+      return [];
+    }
+  }
+
+  // a sent message becomes the latest entry; an older identical one is dropped, so the list stays unique
+  function rememberMessage(text){
+    history = history.filter(function(m){ return m !== text; });
+    history.push(text);
+    if(history.length > HISTORY_MAX) history = history.slice(-HISTORY_MAX);
+    try { localStorage.setItem(HISTORY_KEY, JSON.stringify(history)); } catch(e){ /* storage off or full: memory only */ }
+    historyPos = history.length;
+    draft = '';
+  }
+
+  function recall(pos){
+    if(historyPos === history.length) draft = input.value;
+    historyPos = pos;
+    input.value = pos === history.length ? draft : history[pos];
+    resizeInput();
+    input.setSelectionRange(input.value.length, input.value.length);
+  }
+
+  function resizeInput(){
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+  }
 
   var gate = new ApiGate(GATE_URL);
   // { apiKey, ws, dialogId } of the started session; kept in memory only, a reload starts over
@@ -681,6 +1081,18 @@ var ANSWER_TIMEOUT_MS = 120000;
     return msg;
   }
 
+  // "?" is answered locally with the help shown before Start, no Ask is sent
+  function showHelp(){
+    appendMessage('msg-user', '?');
+    var msg = document.createElement('div');
+    msg.className = 'msg msg-assistant msg-help';
+    var help = intro.cloneNode(true);
+    fillHelpDiagrams(help);
+    msg.appendChild(help);
+    messages.appendChild(msg);
+    scrollToEnd();
+  }
+
   function scrollToEnd(){
     var body = messages.parentElement;
     body.scrollTop = body.scrollHeight;
@@ -688,7 +1100,7 @@ var ANSWER_TIMEOUT_MS = 120000;
 
   function sleep(ms){ return new Promise(function(resolve){ setTimeout(resolve, ms); }); }
 
-  // polls GetDialog for messages after the question until the answer is no longer Pending
+  // fallback: polls GetDialog for messages after the question until the answer is no longer Pending
   async function waitAnswer(s, ids){
     var deadline = Date.now() + ANSWER_TIMEOUT_MS;
     while(Date.now() < deadline){
@@ -699,6 +1111,27 @@ var ANSWER_TIMEOUT_MS = 120000;
       if(answer && answer.Status !== 'Pending') return answer;
     }
     throw new Error('no answer within ' + ANSWER_TIMEOUT_MS / 1000 + 's');
+  }
+
+  // the answer is the final reply of the Ask request; if it got accepted but the final reply
+  // never comes (504 from the gate, or a malformed one), the stored answer is read with GetDialog
+  async function askAndWait(s, text){
+    var ids = null;
+    var final;
+    try {
+      final = await s.ws.signedFinal('dialog', 'Ask', { DialogId: s.dialogId, Content: text }, function(payload){
+        ids = payload && payload.Ask;
+      });
+    } catch(e){
+      if(!ids || session !== s || !(e instanceof GateError && e.status === 504)) throw e;
+      console.warn('no final Ask reply, reading the answer with GetDialog', e);
+      return waitAnswer(s, ids);
+    }
+    if(final && final.AskAnswer && final.AskAnswer.Message) return final.AskAnswer.Message;
+    // an older dialog service answers Ask with a final 200 carrying only the ids
+    if(final && final.Ask) ids = final.Ask;
+    if(ids) return waitAnswer(s, ids);
+    throw new Error('unexpected reply');
   }
 
   function askError(e){
@@ -713,11 +1146,10 @@ var ANSWER_TIMEOUT_MS = 120000;
     var bubble = appendMessage('msg-assistant msg-pending', 'Thinking…');
     setBusy(true);
     try {
-      var asked = await s.ws.signed('dialog', 'Ask', { DialogId: s.dialogId, Content: text });
-      var answer = await waitAnswer(s, asked.Ask);
+      var answer = await askAndWait(s, text);
       if(answer.Status === 'Done'){
         bubble.className = 'msg msg-assistant';
-        bubble.textContent = answer.Content;
+        renderAnswer(bubble, answer.Content);
       } else {
         bubble.className = 'msg msg-assistant msg-failed';
         bubble.textContent = 'No answer (' + (answer.Error || 'failed') + ').';
@@ -748,19 +1180,37 @@ var ANSWER_TIMEOUT_MS = 120000;
     if(!text || !session || input.disabled) return;
     input.value = '';
     input.style.height = 'auto';
-    ask(text);
+    rememberMessage(text);
+    if(text === '?') showHelp();
+    else ask(text);
   });
 
   input.addEventListener('keydown', function(e){
     if(e.key === 'Enter' && !e.shiftKey){
       e.preventDefault();
       form.requestSubmit();
+      return;
+    }
+    if(e.shiftKey || e.altKey || e.ctrlKey || e.metaKey || e.isComposing) return;
+    // only from the first/last line, so the arrows still move the caret inside a multi-line message
+    var value = input.value;
+    if(e.key === 'ArrowUp' && historyPos > 0 && value.lastIndexOf('\n', input.selectionStart - 1) === -1){
+      e.preventDefault();
+      recall(historyPos - 1);
+    } else if(e.key === 'ArrowDown' && historyPos < history.length && value.indexOf('\n', input.selectionEnd) === -1){
+      e.preventDefault();
+      recall(historyPos + 1);
     }
   });
 
   input.addEventListener('input', function(){
-    input.style.height = 'auto';
-    input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+    // editing a recalled message works on a copy: it becomes the draft (the newest position),
+    // the stored entry stays unchanged, and sending it adds it as the latest entry
+    if(historyPos < history.length){
+      historyPos = history.length;
+    }
+    draft = input.value;
+    resizeInput();
   });
 
   document.addEventListener('keydown', function(e){

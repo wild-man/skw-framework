@@ -103,6 +103,7 @@ const WS_CLOSE_POLICY = 1008;
 /// `{"Signature", "Status", "ErrorMsg", "ErrCode", "Payload"}` are matched to requests by `Signature`.
 /// A request settles on its first reply: a provisional one (`Status` 201/202) resolves it, and the
 /// final reply that follows under the same `Signature` is ignored (logged as an unexpected frame).
+/// `signedFinal` instead hands the provisional reply to a callback and settles on the final one.
 /// A signed frame with an outdated `Ts` (> 30s from the gate clock) is rejected with `ErrCode` 409.
 /// Server pings are answered by the browser itself, which keeps the connection alive.
 export class WsGate {
@@ -161,13 +162,25 @@ export class WsGate {
     return this.request(`/${service}/signed`, data, await this.apiKey.sign(data));
   }
 
+  /// Signed request whose result comes later: a provisional reply (`Status` 201/202) is passed to
+  /// `onProvisional(payload)` and the promise settles on the final reply under the same `Signature`.
+  /// The gate gives up on a final reply after its `provisionalReplyTimeoutSecs` (`GateError` 504).
+  async signedFinal(service, method, params, onProvisional) {
+    if (!this.apiKey) {
+      throw new Error("ws connection is not authorized");
+    }
+    const data = gateBody(method, params);
+    return this.request(`/${service}/signed`, data, await this.apiKey.sign(data), onProvisional);
+  }
+
   close() {
     this.socket.close();
   }
 
   /// Resolves to the reply payload, rejects with `GateError` when the reply carries an `ErrCode`.
-  request(uri, data, signature) {
-    const reply = new Promise((resolve, reject) => this.pending.set(signature, { resolve, reject }));
+  /// With `onProvisional`, a provisional reply doesn't settle the request (see `signedFinal`).
+  request(uri, data, signature, onProvisional = null) {
+    const reply = new Promise((resolve, reject) => this.pending.set(signature, { resolve, reject, onProvisional }));
     this.send(uri, data, signature);
     return reply;
   }
@@ -197,6 +210,10 @@ export class WsGate {
     if (!waiting) {
       // pushes and replies nobody waits for (yet) are not handled
       console.debug("unexpected ws frame", msg);
+      return;
+    }
+    if (waiting.onProvisional && !msg.ErrCode && (msg.Status === 201 || msg.Status === 202)) {
+      waiting.onProvisional(msg.Payload ?? null);
       return;
     }
     this.pending.delete(msg.Signature);
