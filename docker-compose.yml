@@ -27,26 +27,33 @@ services:
       - IGGY_ROOT_USERNAME=iggy
       - IGGY_ROOT_PASSWORD=Secret123!
       - IGGY_HTTP_ENABLED=true
-      - IGGY_HTTP_ADDRESS=0.0.0.0:80
+      - IGGY_HTTP_ADDRESS=0.0.0.0:81
       - IGGY_TCP_ENABLED=true
       - IGGY_TCP_ADDRESS=0.0.0.0:3000
       - IGGY_QUIC_ENABLED=true
+      # QUIC default bind is 127.0.0.1:8080, unreachable through port forwarding
+      - IGGY_QUIC_ADDRESS=0.0.0.0:8080
       - IGGY_HEARTBEAT_ENABLED=true
       - IGGY_HEARTBEAT_INTERVAL=5s
+      # required since iggy-server 0.9 when a listener binds a wildcard (0.0.0.0);
+      # only cluster metadata, a single node never redirects clients to it
+      - IGGY_NODE_ADVERTISED_ADDRESS=skw-iggy
     ports:
-      - "8080:80"
+      - "81:81"
+      - "8080:8080/udp" # QUIC
       - "8081:3000"
     networks:
       - main
     volumes:
-      - ./docker/iggy:/iggy/local_data
+      # the image's working dir is /app and data goes to ./local_data under it
+      - ./docker/iggy:/app/local_data
 
   skw-iggy-web-ui:
     image: apache/iggy-web-ui:latest
     container_name: skw-iggy-web-ui
     restart: unless-stopped
     environment:
-      - PUBLIC_IGGY_API_URL=http://localhost:8080
+      - PUBLIC_IGGY_API_URL=http://localhost:81
     ports:
       - "3050:3050"
     networks:
