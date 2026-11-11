@@ -679,10 +679,13 @@
 <script type="module">
 import { ApiGate, ApiKey, GateError, WsGate } from './skw-api.js';
 
-// api-gate on the page's host, so the page origin stays in the gate's CORS allowedOrigins
-var GATE_URL = 'https://' + location.hostname + ':8443';
-// ws gate on the same host; it has no `auth` topics, so CreateKey still goes through the api-gate
-var WS_GATE_HOST = location.hostname + ':9443';
+// the page is served by the api-gate itself (/service/static), so api calls are same-origin
+var GATE_URL = location.origin;
+// ws gate: page on `cv.<domain>` → `ws.<domain>` (same port as the page); otherwise (localhost,
+// 127.0.0.1, ...) the same host on :9443. It has no `auth` topics, so CreateKey still goes through the api-gate
+var WS_GATE_HOST = location.hostname.startsWith('cv.')
+  ? 'ws.' + location.hostname.slice(3) + (location.port ? ':' + location.port : ':9443')
+  : location.hostname + ':9443';
 var WS_GATE_URL = 'wss://' + WS_GATE_HOST + '/ws/';
 // an Ask is accepted at once (202 with the message ids) and its final reply, the answer from
 // dialog-mq-service, arrives on the same ws request; GetDialog polling is only the fallback

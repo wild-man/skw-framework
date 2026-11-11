@@ -33,8 +33,6 @@ futures-util = { version = "0.3.34" }
 thiserror = { version =  "2.0.12" }
 sqlx = { version = "0.9",  features = [ "runtime-tokio", "tls-rustls-ring-native-roots", "postgres", "uuid", "chrono"] }
 axum = { version = "0.8" , features = ["macros", "json"]}
-tower-http = { version = "0.7", features = ["fs", "set-header"] }
-axum-server = { version = "0.8", features = ["tls-rustls-no-provider"] }
 ed25519-dalek = { version = "3", features = ["pem", "rand_core"] }
 base64 = { version = "0.23" }
 uuid = { version = "1", features = ["v7", "serde"] }
