@@ -1,0 +1,11 @@
+[
+  { "bin": "auth-http-service", "config": "auth/local.json", "listens": true },
+  { "bin": "api-gate", "config": "api-gate/local.json", "listens": true },
+  { "bin": "ws", "config": "ws-gate/local.json", "listens": true },
+  { "bin": "auth-stream-service", "config": "auth/local.json" },
+  { "bin": "ping-stream-service", "config": "ping/local.json" },
+  { "bin": "ping-stream-service", "config": "ping/local-signed.json" },
+  { "bin": "ping-mq-service", "config": "ping/local.json" },
+  { "bin": "dialog-stream-service", "config": "dialog/local.json" },
+  { "bin": "dialog-mq-service", "config": "dialog/local.json" }
+]

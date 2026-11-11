@@ -20,7 +20,7 @@ services:
   skw-iggy:
     security_opt:
       - seccomp:unconfined
-    image: apache/iggy:latest
+    image: apache/iggy:0.9.0
     container_name: skw-iggy
     restart: unless-stopped
     environment:
@@ -34,10 +34,11 @@ services:
       # QUIC default bind is 127.0.0.1:8080, unreachable through port forwarding
       - IGGY_QUIC_ADDRESS=0.0.0.0:8080
       - IGGY_HEARTBEAT_ENABLED=true
-      - IGGY_HEARTBEAT_INTERVAL=5s
+      - IGGY_HEARTBEAT_INTERVAL=25s
       # required since iggy-server 0.9 when a listener binds a wildcard (0.0.0.0);
       # only cluster metadata, a single node never redirects clients to it
       - IGGY_NODE_ADVERTISED_ADDRESS=skw-iggy
+      - IGGY_WEBSOCKET_ADDRESS=0.0.0.0:8443
     ports:
       - "81:81"
       - "8080:8080/udp" # QUIC

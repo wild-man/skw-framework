@@ -1,0 +1,39 @@
+{
+  "envOverrides": {
+    "/service/bindAddress": "SERVICE_BIND_ADDRESS"
+  },
+  "service": {
+    "name": "skw-ws-gate",
+    "bindAddress": "0.0.0.0:9443",
+    "workers": 2,
+    "backTopicPartitionsCount": 2,
+    "tls": {
+      "subjectAltNames": ["localhost", "127.0.0.1", "skw-api-gate"],
+      "certPath": "./conf/skw-api-gate.cert.pem",
+      "keyPath": "./conf/skw-api-gate.key.pem"
+    },
+    "authServiceUrl": "http://127.0.0.1:9001",
+    "rootKey": "01a01500-98d5-71fc-9038-71acb78d61c4",
+    "heartbeatIntervalSecs": 5,
+    "clientTimeoutSecs": 10,
+    "maxInFlightFrames": 64,
+    "maxPendingRequests": 300,
+    "maxSessionsPerToken": 20
+  },
+  "iggy": {
+    "url": "iggy+quic://iggy:Secret123!@localhost:8080",
+    "streamPrefix": "api-gate-stream"
+  },
+  "topicsMap": {
+    "ping":{
+      "partitionsCount": 3,
+      "messageExpiry": 31,
+      "topicTypes": ["public", "open", "signed"]
+    },
+    "dialog":{
+      "partitionsCount": 3,
+      "messageExpiry": 31,
+      "topicTypes": ["signed"]
+    }
+  }
+}

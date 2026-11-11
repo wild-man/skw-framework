@@ -1,0 +1,29 @@
+{
+  "envOverrides": {
+    "/service/bindAddress": "SERVICE_BIND_ADDRESS",
+    "/postgres/master/url": "POSTGRES_MASTER_URL",
+    "/iggy/url": "IGGY_URL"
+  },
+  "service": {
+    "name": "skw-auth-service",
+    "bindAddress": "127.0.0.1:9001",
+    "rootKey": "01a01500-98d5-71fc-9038-71acb78d61c4",
+    "topicTypes": ["open"]
+  },
+  "postgres": {
+    "master": {
+      "url": "postgres://skw:password@localhost:5432/skw",
+      "createServiceSchema": true,
+      "setSearchPathByService": true
+    },
+    "slave": {
+      "url": "postgres://skw:password@localhost:5432/skw",
+      "createServiceSchema": false,
+      "setSearchPathByService": true
+    }
+  },
+  "iggy": {
+    "url": "iggy+quic://iggy:Secret123!@localhost:8080",
+    "streamPrefix": "api-gate-stream"
+  }
+}

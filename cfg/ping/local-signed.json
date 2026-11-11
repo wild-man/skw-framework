@@ -1,0 +1,36 @@
+{
+  "envOverrides": {
+    "/iggy/url": "IGGY_URL",
+    "/rabbitmq/url": "RABBITMQ_URL"
+  },
+  "service": {
+    "name": "skw-ping-service",
+    "rootKey": "01a01500-98d5-71fc-9038-71acb78d61c4",
+    "topicTypes": ["signed"]
+  },
+  "iggy": {
+    "url": "iggy+quic://iggy:Secret123!@localhost:8080",
+    "streamPrefix": "api-gate-stream"
+  },
+  "redis": {
+    "url": "redis://skw:password@localhost:6379"
+  },
+  "rabbitmq": {
+    "url": "amqp://rabbitmq:Secret123!@localhost:5672",
+    "queues": [
+      { "name": "ping-task", "prefetch": 10 }
+    ]
+  },
+  "postgres": {
+    "master": {
+      "url": "postgres://skw:password@localhost:5432/skw",
+      "createServiceSchema": true,
+      "setSearchPathByService": true
+    },
+    "slave": {
+      "url": "postgres://skw:password@localhost:5432/skw",
+      "createServiceSchema": false,
+      "setSearchPathByService": true
+    }
+  }
+}
